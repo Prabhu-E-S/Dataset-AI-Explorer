@@ -1,0 +1,6 @@
+user_id,name,email,salary,active
+1,John Doe,john.doe@example.com,50000.0,True
+2,Jane Smith,bob@example.com,60000.0,False
+3,Bob Marley,bob@example.com,789375.0,Yes
+4,Alice Cooper,bob@example.com,55000.0,No
+5,Charlie Brown,charlie@web.com,45000.0,False

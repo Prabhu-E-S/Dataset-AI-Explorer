@@ -25,6 +25,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
+@app.on_event("startup")
+async def startup_event():
+    from app.services.ai.gemini_service import GeminiService
+    try:
+        await GeminiService.initialize_service()
+    except Exception as e:
+        print(f"[Startup] Gemini service initialization failed: {e}")
+
 # 3. CORS Middleware Configuration
 # Allows requests from standard Vite port (5173), fallback ports, and generic dev endpoints
 origins = [

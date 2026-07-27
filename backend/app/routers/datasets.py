@@ -271,7 +271,9 @@ async def generate_dataset_summary(id: str, db: Session = Depends(get_db)):
             sample_rows=sample_data
         )
     except Exception as e:
-        summary_text = f"Welcome! Gemini Summary generation was not completed due to network settings: {str(e)}. However, your workspace contains {dataset.rows} rows and {dataset.columns} columns and is ready for analytics queries."
+        from app.services.ai.gemini_service import GeminiError
+        err_msg = str(e) if isinstance(e, GeminiError) else f"Network unavailable ({str(e)})"
+        summary_text = f"Welcome! Gemini Summary generation was not completed: {err_msg}. However, your workspace contains {dataset.rows} rows and {dataset.columns} columns and is ready for analytics queries."
 
     # Save as first AI assistant message
     summary_msg = ChatMessage(
@@ -377,7 +379,9 @@ async def query_dataset_chatbot(id: str, request: ChatRequest, db: Session = Dep
             insights = bullets[:3]
 
     except Exception as e:
-        reply_message = f"I encountered an error trying to process your dataset query: {str(e)}"
+        from app.services.ai.gemini_service import GeminiError
+        err_msg = str(e) if isinstance(e, GeminiError) else f"Network unavailable ({str(e)})"
+        reply_message = f"I encountered an error trying to process your dataset query: {err_msg}"
         response_type = "text"
 
     # 6. Save assistant message to DB

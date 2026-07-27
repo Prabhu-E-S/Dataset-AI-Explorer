@@ -185,7 +185,18 @@ export default function ChatInterface({
     onApplyCleaning
 }) {
     const [inputValue, setInputValue] = useState('');
+    const [copiedId, setCopiedId] = useState(null);
     const messagesEndRef = useRef(null);
+
+    const handleCopy = (text, msgId) => {
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(() => {
+            setCopiedId(msgId);
+            setTimeout(() => setCopiedId(null), 2000);
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+        });
+    };
 
     // Checklist Configurator state
     const [cleanConfig, setCleanConfig] = useState({
@@ -290,7 +301,7 @@ export default function ChatInterface({
                         </p>
                     </div>
                 ) : (
-                    messages.map((msg) => {
+                    messages.map((msg, idx) => {
                         const isUser = msg.role === 'user';
                         return (
                             <div
@@ -586,6 +597,36 @@ export default function ChatInterface({
                                                     </a>
                                                 </div>
                                             </div>
+                                        </div>
+                                    )}
+
+                                    {/* Copy Button */}
+                                    {msg.content && (
+                                        <div className="flex justify-end mt-2.5 pt-2 border-t border-brand-border/20">
+                                            <button
+                                                onClick={() => handleCopy(msg.content, msg.id || idx)}
+                                                className={`flex items-center space-x-1.5 text-[10px] font-semibold py-1.5 px-2.5 rounded-lg border transition-all duration-200 focus:outline-none ${isUser
+                                                        ? 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10 border-white/10'
+                                                        : 'text-brand-muted hover:text-brand-primary bg-brand-bg/30 hover:bg-brand-bg/50 border-brand-border/40 hover:border-brand-primary/30'
+                                                    }`}
+                                                title="Copy to clipboard"
+                                            >
+                                                {copiedId === (msg.id || idx) ? (
+                                                    <>
+                                                        <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                        <span className="text-emerald-400">Copied!</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                                        </svg>
+                                                        <span>Copy</span>
+                                                    </>
+                                                )}
+                                            </button>
                                         </div>
                                     )}
                                 </div>

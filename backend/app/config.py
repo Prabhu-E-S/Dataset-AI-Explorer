@@ -15,8 +15,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/ai_dataset_explorer"
     UPLOAD_DIR: str = "uploads"
     MAX_FILE_SIZE_MB: int = 50
-    GEMINI_API_KEY: str = None
-    GEMINI_MODEL: str = "gemini-2.5-flash"
+    GEMINI_API_KEY: str | None = None
+    GEMINI_MODEL: str = ""
 
     model_config = SettingsConfigDict(
         env_file=env_path,

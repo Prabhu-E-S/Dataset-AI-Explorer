@@ -528,45 +528,44 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
     }
 
     const { original_filename, file_type, rows, columns, file_size, upload_time, profile_data } = profile;
-
     return (
         <div className="flex-1 flex flex-col overflow-hidden select-none p-6 gap-6">
 
             {/* 1. Header workspace meta */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-between items-start border-b border-brand-border/60 pb-5">
+            <div className="flex flex-col sm:flex-row gap-4 justify-between items-start border-b border-brand-border/60 pb-4">
                 <div className="text-left w-full sm:w-auto">
-                    <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-brand-primary/10 border border-brand-primary/20 rounded-xl flex items-center justify-center text-brand-primary">
-                            <FiFileText className="text-lg" />
+                    <div className="flex items-center gap-2.5">
+                        <div className="h-8.5 w-8.5 bg-brand-primary/10 border border-brand-primary/20 rounded-lg flex items-center justify-center text-brand-primary">
+                            <FiFileText className="text-base" />
                         </div>
                         <div className="min-w-0">
-                            <h2 className="text-2xl font-black text-white truncate max-w-lg" title={original_filename}>
+                            <h2 className="text-xl font-bold text-white truncate max-w-lg" title={original_filename}>
                                 {original_filename}
                             </h2>
-                            <span className="text-[10px] text-brand-muted font-medium flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[9px] text-brand-muted font-mono flex items-center gap-1.5 mt-0.5 uppercase">
                                 Saved {new Date(upload_time).toLocaleString()} • {file_type.toUpperCase()} File
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 self-end sm:self-auto">
+                <div className="flex flex-wrap items-center gap-2.5 self-end sm:self-auto">
                     {/* Command Palette Indicator */}
                     <button
                         onClick={() => setShowCtrlK(true)}
-                        className="flex items-center gap-2 bg-brand-card/30 hover:bg-brand-hover text-brand-text border border-brand-border px-3.5 py-2 rounded-xl text-xs font-semibold cursor-pointer"
+                        className="flex items-center gap-2 bg-brand-card/20 hover:bg-brand-hover text-brand-text border border-brand-border/80 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-150 active:scale-95"
                     >
                         <span>Actions</span>
-                        <kbd className="bg-brand-bg px-1.5 py-0.5 rounded border border-brand-border text-[9px] font-mono">Ctrl+K</kbd>
+                        <kbd className="bg-brand-bg px-1.5 py-0.5 rounded border border-brand-border text-[9px] font-mono leading-none">Ctrl+K</kbd>
                     </button>
 
                     {/* Version history button */}
                     <button
                         onClick={() => setShowVersions(true)}
-                        className="flex items-center gap-2 bg-brand-card/30 hover:bg-brand-hover text-brand-text border border-brand-border px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer"
+                        className="flex items-center gap-2 bg-brand-card/20 hover:bg-brand-hover text-brand-text border border-brand-border/80 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-150 active:scale-95"
                         title="Version Workspace History"
                     >
-                        <FiLayers size={14} className="text-brand-accent animate-pulse" />
+                        <FiLayers size={12} className="text-brand-accent animate-pulse" />
                         <span>Versions</span>
                     </button>
 
@@ -574,12 +573,12 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                     <div className="relative">
                         <button
                             onClick={() => setShowNotifications(prev => !prev)}
-                            className="p-2.5 bg-brand-card/30 hover:bg-brand-hover text-brand-text border border-brand-border rounded-xl cursor-pointer relative"
+                            className="p-2 bg-brand-card/20 hover:bg-brand-hover text-brand-text border border-brand-border/80 rounded-lg cursor-pointer relative transition-all duration-150 active:scale-95"
                             title="Notifications Feed Alerts"
                         >
-                            <FiBell size={14} className={notifications.some(n => !n.read) ? "text-amber-400 animate-bounce" : "text-brand-muted"} />
+                            <FiBell size={12} className={notifications.some(n => !n.read) ? "text-amber-400 animate-bounce" : "text-brand-muted"} />
                             {notifications.some(n => !n.read) && (
-                                <span className="absolute -top-1 -right-1 h-4 w-4 bg-amber-500 text-brand-bg text-[9px] font-black rounded-full flex items-center justify-center">
+                                <span className="absolute -top-1 -right-1 h-3.5 w-3.5 bg-amber-500 text-brand-bg text-[8px] font-black rounded-full flex items-center justify-center">
                                     {notifications.filter(n => !n.read).length}
                                 </span>
                             )}
@@ -587,11 +586,11 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
 
                         {/* Notifications Dropdown panel */}
                         {showNotifications && (
-                            <div className="absolute right-0 mt-2.5 w-72 bg-brand-sidebar border border-brand-border rounded-2xl shadow-xl z-50 p-3.5 flex flex-col gap-2.5 text-left">
-                                <div className="flex justify-between items-center border-b border-brand-border/60 pb-2">
-                                    <h4 className="text-[10px] uppercase font-bold text-white tracking-wider flex items-center gap-1.5">
+                            <div className="absolute right-0 mt-2 w-64 bg-brand-sidebar border border-brand-border rounded-lg shadow-lg z-50 p-3 flex flex-col gap-2.5 text-left">
+                                <div className="flex justify-between items-center border-b border-brand-border/40 pb-1.5">
+                                    <h4 className="text-[9px] uppercase font-bold text-white tracking-wider flex items-center gap-1">
                                         <FiBell className="text-amber-400" />
-                                        <span>Workspace Feed Alerts</span>
+                                        <span>Alerts Feed</span>
                                     </h4>
                                     {notifications.some(n => !n.read) && (
                                         <button
@@ -599,28 +598,30 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                                                 try {
                                                     // For mock/backend support, we can clear locally or hit api
                                                     setNotifications(prev => prev.map(item => ({ ...item, read: true })));
-                                                } catch (e) {
-                                                    console.error(e);
-                                                }
+                                                } catch (err) { }
                                             }}
-                                            className="text-[9px] text-brand-primary font-bold hover:underline cursor-pointer"
+                                            className="text-[9px] text-brand-primary hover:underline font-semibold"
                                         >
-                                            Mark as read
+                                            Mark all read
                                         </button>
                                     )}
                                 </div>
-                                <div className="max-h-56 overflow-y-auto custom-scrollbar flex flex-col gap-2 pr-1">
+                                <div className="max-h-60 overflow-y-auto flex flex-col gap-2 pr-0.5 custom-scrollbar">
                                     {notifications.length === 0 ? (
-                                        <span className="text-[10px] text-brand-muted italic py-4 block text-center">No alerts logged</span>
+                                        <span className="text-[10px] text-brand-muted italic py-4 block text-center">No new notifications</span>
                                     ) : (
-                                        notifications.map(n => (
-                                            <div key={n.id} className={`p-2 rounded-lg border text-[11px] leading-relaxed ${n.read ? 'bg-brand-bg/20 border-brand-border/40 text-brand-muted' : 'bg-brand-primary/5 border-brand-primary/20 text-white'}`}>
-                                                <div className="font-bold flex items-center gap-1">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-brand-accent" />
+                                        notifications.map((n) => (
+                                            <div
+                                                key={n.id}
+                                                className={`p-2 rounded border transition-colors ${n.read ? 'bg-brand-card/10 border-brand-border/40' : 'bg-brand-primary/5 border-brand-primary/20'
+                                                    }`}
+                                            >
+                                                <div className="flex items-center gap-1.5 text-[9px] font-bold text-white uppercase">
+                                                    <span className={`h-1.5 w-1.5 rounded-full ${n.read ? 'bg-brand-muted' : 'bg-brand-primary'}`} />
                                                     <span>{n.title}</span>
                                                 </div>
-                                                <p className="mt-0.5 text-brand-text text-[10px]">{n.message}</p>
-                                                <span className="text-[8px] text-brand-muted block mt-1 tracking-tight font-mono">{new Date(n.timestamp).toLocaleString()}</span>
+                                                <p className="mt-0.5 text-brand-text text-[10px] leading-tight">{n.message}</p>
+                                                <span className="text-[8px] text-brand-muted block mt-1 tracking-tight font-mono">{new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                             </div>
                                         ))
                                     )}
@@ -632,18 +633,18 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                     {/* Settings Trigger */}
                     <button
                         onClick={() => setShowSettings(true)}
-                        className="p-2.5 bg-brand-card/30 hover:bg-brand-hover text-brand-text border border-brand-border rounded-xl cursor-pointer"
+                        className="p-2 bg-brand-card/20 hover:bg-brand-hover text-brand-text border border-brand-border/80 rounded-lg cursor-pointer transition-all duration-150 active:scale-95"
                         title="Preferences Config"
                     >
-                        <FiSettings size={14} className="text-brand-muted" />
+                        <FiSettings size={12} className="text-brand-muted" />
                     </button>
 
                     <button
                         onClick={handleDelete}
-                        className="flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all active:scale-95 cursor-pointer"
+                        className="flex items-center justify-center gap-1.5 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/15 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95 cursor-pointer"
                     >
-                        <FiTrash2 />
-                        <span>Delete Folder</span>
+                        <FiTrash2 className="text-xs" />
+                        <span>Delete Workspace</span>
                     </button>
                 </div>
             </div>
@@ -658,36 +659,36 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
             </div>
 
             {/* 3. Navigation Tabs */}
-            <div className="flex border-b border-brand-border justify-between items-center pr-1">
-                <div className="flex">
+            <div className="flex border-b border-brand-border/60 justify-between items-center pr-1 mt-1">
+                <div className="flex gap-1">
                     <button
                         onClick={() => setActiveTab('preview')}
-                        className={`flex items-center gap-2 py-3 px-5 border-b-2 font-bold text-xs transition-colors outline-none cursor-pointer ${activeTab === 'preview'
-                            ? 'border-brand-primary text-brand-primary font-bold'
-                            : 'border-transparent text-brand-muted hover:text-white'
+                        className={`flex items-center gap-1.5 py-2.5 px-4 border-b-2 text-xs font-semibold transition-colors outline-none cursor-pointer ${activeTab === 'preview'
+                            ? 'border-brand-primary text-brand-primary'
+                            : 'border-transparent text-brand-muted hover:text-white/80'
                             }`}
                     >
-                        <FiGrid className="text-sm" />
+                        <FiGrid className="text-xs" />
                         <span>Data Preview</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('profiling')}
-                        className={`flex items-center gap-2 py-3 px-5 border-b-2 font-bold text-xs transition-colors outline-none cursor-pointer ${activeTab === 'profiling'
-                            ? 'border-brand-primary text-brand-primary font-bold'
-                            : 'border-transparent text-brand-muted hover:text-white'
+                        className={`flex items-center gap-1.5 py-2.5 px-4 border-b-2 text-xs font-semibold transition-colors outline-none cursor-pointer ${activeTab === 'profiling'
+                            ? 'border-brand-primary text-brand-primary'
+                            : 'border-transparent text-brand-muted hover:text-white/80'
                             }`}
                     >
-                        <FiActivity className="text-sm" />
+                        <FiActivity className="text-xs" />
                         <span>Dataset Profiling</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('ai_analyst')}
-                        className={`flex items-center gap-2 py-3 px-5 border-b-2 font-bold text-xs transition-colors outline-none cursor-pointer ${activeTab === 'ai_analyst'
-                            ? 'border-brand-primary text-brand-primary font-bold'
-                            : 'border-transparent text-brand-muted hover:text-white'
+                        className={`flex items-center gap-1.5 py-2.5 px-4 border-b-2 text-xs font-semibold transition-colors outline-none cursor-pointer ${activeTab === 'ai_analyst'
+                            ? 'border-brand-primary text-brand-primary'
+                            : 'border-transparent text-brand-muted hover:text-white/80'
                             }`}
                     >
-                        <FiMessageSquare className="text-sm text-brand-accent animate-pulse" />
+                        <FiMessageSquare className="text-xs text-brand-accent animate-pulse" />
                         <span>AI Data Analyst</span>
                     </button>
                     <button
@@ -697,22 +698,22 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                                 handleFetchAutoML();
                             }
                         }}
-                        className={`flex items-center gap-2 py-3 px-5 border-b-2 font-bold text-xs transition-colors outline-none cursor-pointer ${activeTab === 'predictions'
-                            ? 'border-brand-primary text-brand-primary font-bold'
-                            : 'border-transparent text-brand-muted hover:text-white'
+                        className={`flex items-center gap-1.5 py-2.5 px-4 border-b-2 text-xs font-semibold transition-colors outline-none cursor-pointer ${activeTab === 'predictions'
+                            ? 'border-brand-primary text-brand-primary'
+                            : 'border-transparent text-brand-muted hover:text-white/80'
                             }`}
                     >
-                        <FiCpu className="text-sm text-blue-400" />
+                        <FiCpu className="text-xs text-blue-400" />
                         <span>AutoML & Predict</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('reports')}
-                        className={`flex items-center gap-2 py-3 px-5 border-b-2 font-bold text-xs transition-colors outline-none cursor-pointer ${activeTab === 'reports'
-                            ? 'border-brand-primary text-brand-primary font-bold'
-                            : 'border-transparent text-brand-muted hover:text-white'
+                        className={`flex items-center gap-1.5 py-2.5 px-4 border-b-2 text-xs font-semibold transition-colors outline-none cursor-pointer ${activeTab === 'reports'
+                            ? 'border-brand-primary text-brand-primary'
+                            : 'border-transparent text-brand-muted hover:text-white/80'
                             }`}
                     >
-                        <FiPieChart className="text-sm text-purple-400" />
+                        <FiPieChart className="text-xs text-purple-400" />
                         <span>BI Reports</span>
                     </button>
                 </div>
@@ -720,7 +721,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                 {/* Collapsible Sidebar Button */}
                 <button
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-border bg-brand-card/30 hover:bg-brand-hover text-brand-text hover:text-white transition-all text-xs font-semibold cursor-pointer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-border bg-brand-card/15 hover:bg-brand-hover text-brand-text hover:text-white transition-all text-xs font-semibold cursor-pointer"
                 >
                     <FiCompass className={`shrink-0 ${isSidebarOpen ? 'text-brand-primary rotate-45' : 'text-brand-muted'} transition-transform duration-300`} />
                     <span>Columns Metadata</span>
@@ -1597,16 +1598,16 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
 /* Metric Display Widget Card helper */
 function MetricCard({ title, value, subtitle, icon, highlight = false }) {
     return (
-        <div className={`p-4 bg-brand-card/45 border rounded-2xl text-left transition-all ${highlight ? 'border-amber-500/30 shadow-sm shadow-amber-500/5' : 'border-brand-border/65'
+        <div className={`p-4 bg-brand-card/15 border rounded-lg text-left transition-all duration-200 ${highlight ? 'border-amber-500/25 bg-amber-500/5' : 'border-brand-border/60 hover:bg-brand-card/35'
             }`}>
             <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] text-brand-muted uppercase font-bold tracking-wider">{title}</span>
-                <div className="h-7 w-7 rounded-lg bg-brand-bg border border-brand-border flex items-center justify-center shadow-inner">
+                <span className="text-[9px] text-brand-muted uppercase font-bold tracking-wider">{title}</span>
+                <div className="h-6 w-6 rounded bg-brand-sidebar border border-brand-border/80 flex items-center justify-center">
                     {icon}
                 </div>
             </div>
-            <div className={`text-xl font-black ${highlight ? 'text-amber-400' : 'text-white'}`}>{value}</div>
-            <span className="text-[9px] text-brand-muted mt-1.5 block font-medium truncate">{subtitle}</span>
+            <div className={`text-xl font-bold ${highlight ? 'text-amber-400 font-semibold' : 'text-white'}`}>{value}</div>
+            <span className="text-[9px] text-brand-muted mt-1 block font-medium truncate">{subtitle}</span>
         </div>
     );
 }
@@ -1614,9 +1615,9 @@ function MetricCard({ title, value, subtitle, icon, highlight = false }) {
 /* Local stat metric small card helper */
 function StatWidget({ title, value }) {
     return (
-        <div className="bg-brand-bg/50 border border-brand-border/60 rounded-xl p-3 text-left">
-            <span className="text-[9px] text-brand-muted font-bold uppercase tracking-wider block">{title}</span>
-            <span className="text-sm font-extrabold text-white mt-1 block font-mono">
+        <div className="bg-brand-card/10 border border-brand-border/55 rounded-lg p-2.5 text-left">
+            <span className="text-[9px] text-brand-muted font-bold uppercase tracking-wider block leading-none">{title}</span>
+            <span className="text-xs font-bold text-white mt-1.5 block font-mono">
                 {value}
             </span>
         </div>

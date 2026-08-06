@@ -268,36 +268,36 @@ export default function ChatInterface({
     };
 
     return (
-        <div className="flex-1 flex flex-col h-full bg-brand-bg relative overflow-hidden">
+        <div className="flex-1 flex flex-col h-full bg-[#090a0f] relative overflow-hidden">
             {/* Top info summary */}
-            <div className="px-6 py-3 border-b border-brand-border/60 bg-brand-sidebar/40 flex items-center justify-between z-10">
+            <div className="px-5 py-2.5 border-b border-brand-border/60 bg-brand-sidebar/70 flex items-center justify-between z-10">
                 <div className="flex items-center space-x-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-brand-accent animate-pulse" />
-                    <span className="text-sm font-medium text-brand-text truncate max-w-[200px]">
+                    <div className="w-2 h-2 rounded-full bg-brand-accent animate-pulse" />
+                    <span className="text-xs font-semibold text-brand-text truncate max-w-[200px]">
                         {activeDatasetName || 'Active Dataset'}
                     </span>
                 </div>
                 <button
                     onClick={onClearHistory}
                     disabled={messages.length === 0}
-                    className="text-xs text-red-400 hover:text-red-300 disabled:text-brand-muted hover:bg-red-500/10 disabled:bg-transparent px-2.5 py-1.5 rounded-lg border border-red-500/20 disabled:border-transparent transition-all duration-200 focus:outline-none"
+                    className="text-[10px] text-red-400 hover:text-red-300 disabled:text-brand-muted hover:bg-red-500/5 disabled:bg-transparent px-2.5 py-1.5 rounded-lg border border-red-500/15 disabled:border-transparent transition-all duration-200 focus:outline-none font-bold uppercase tracking-wider cursor-pointer"
                 >
                     Clear Chat
                 </button>
             </div>
 
             {/* Messages Pane */}
-            <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 space-y-6">
+            <div className="flex-1 overflow-y-auto px-4 md:px-6 py-5 space-y-5 custom-scrollbar">
                 {messages.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center p-6 mt-12">
-                        <div className="w-16 h-16 rounded-2xl bg-brand-card border border-brand-border flex items-center justify-center mb-4 text-brand-primary shadow-lg animate-bounce">
-                            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="h-full flex flex-col items-center justify-center text-center p-6 mt-10">
+                        <div className="w-12 h-12 rounded-lg bg-brand-card border border-brand-border flex items-center justify-center mb-3 text-brand-primary shadow-lg">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                             </svg>
                         </div>
-                        <h2 className="text-xl font-bold text-brand-text">AI Data Cleaning Workspace</h2>
-                        <p className="text-sm text-brand-muted max-w-md mt-2">
-                            Review dataset quality issues, configure cleaner strategies, apply automated python cleaning pipelines and generate reports.
+                        <h2 className="text-sm font-bold text-white uppercase tracking-wider">AI Data Integrity Analyst</h2>
+                        <p className="text-xs text-brand-muted max-w-sm mt-1.5 font-medium leading-relaxed">
+                            Review quality checks, configure automated operations, edit data cells using natural language pipelines, or build BI summary reports.
                         </p>
                     </div>
                 ) : (
@@ -308,12 +308,12 @@ export default function ChatInterface({
                                 key={msg.id || Math.random().toString()}
                                 className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}
                             >
-                                <div className={`w-full max-w-[90%] md:max-w-[78%] rounded-2xl p-4 shadow-md ${isUser
-                                    ? 'bg-brand-primary text-white rounded-br-none ml-auto'
-                                    : 'bg-brand-card border border-brand-border/60 text-slate-100 rounded-bl-none Mr-auto'
+                                <div className={`w-full max-w-[90%] md:max-w-[78%] rounded-lg p-3.5 border transition-all ${isUser
+                                    ? 'bg-[#181d2c] border-brand-primary/20 text-white rounded-br-none ml-auto'
+                                    : 'bg-brand-card/15 border-brand-border/60 text-slate-150 rounded-bl-none mr-auto'
                                     }`}>
-                                    <div className="text-[10px] text-brand-muted mb-1 font-semibold uppercase tracking-wider">
-                                        {isUser ? 'You' : 'Data Integrity Engineer'}
+                                    <div className="text-[9px] text-[#8c91a0] mb-1 font-bold uppercase tracking-wider">
+                                        {isUser ? 'You' : 'AI Analyst'}
                                     </div>
 
                                     {/* Text content formatting */}
@@ -606,8 +606,8 @@ export default function ChatInterface({
                                             <button
                                                 onClick={() => handleCopy(msg.content, msg.id || idx)}
                                                 className={`flex items-center space-x-1.5 text-[10px] font-semibold py-1.5 px-2.5 rounded-lg border transition-all duration-200 focus:outline-none ${isUser
-                                                        ? 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10 border-white/10'
-                                                        : 'text-brand-muted hover:text-brand-primary bg-brand-bg/30 hover:bg-brand-bg/50 border-brand-border/40 hover:border-brand-primary/30'
+                                                    ? 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10 border-white/10'
+                                                    : 'text-brand-muted hover:text-brand-primary bg-brand-bg/30 hover:bg-brand-bg/50 border-brand-border/40 hover:border-brand-primary/30'
                                                     }`}
                                                 title="Copy to clipboard"
                                             >
@@ -637,16 +637,16 @@ export default function ChatInterface({
 
                 {isProcessing && (
                     <div className="flex justify-start">
-                        <div className="bg-brand-card border border-brand-border/60 rounded-2xl rounded-bl-none p-4 max-w-[75%] shadow-md">
-                            <div className="text-[10px] text-brand-muted mb-1 font-semibold uppercase tracking-wider">
-                                Data Integrity Engineer
+                        <div className="bg-brand-card/15 border border-brand-border/60 rounded-lg rounded-bl-none p-3 max-w-[75%] shadow-md">
+                            <div className="text-[9px] text-[#8c91a0] mb-1 font-bold uppercase tracking-wider">
+                                AI Analyst
                             </div>
-                            <div className="flex items-center space-x-3">
-                                <div className="relative w-5 h-5 flex items-center justify-center">
+                            <div className="flex items-center space-x-2.5">
+                                <div className="relative w-4 h-4 flex items-center justify-center">
                                     <div className="absolute inset-0 border-2 border-brand-primary/20 rounded-full" />
                                     <div className="absolute inset-0 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
                                 </div>
-                                <span className="text-sm font-mono text-brand-muted truncate">
+                                <span className="text-xs font-mono text-brand-muted truncate">
                                     {statusText || '🧠 Analyzing structures...'}
                                 </span>
                             </div>
@@ -657,37 +657,37 @@ export default function ChatInterface({
             </div>
 
             {/* Input Bar Footer */}
-            <div className="p-4 border-t border-brand-border/60 bg-brand-sidebar/20">
-                <div className="max-w-4xl mx-auto space-y-3">
+            <div className="p-3.5 border-t border-brand-border/60 bg-brand-sidebar/40">
+                <div className="max-w-4xl mx-auto space-y-2.5">
                     {/* Horizontal chips container */}
-                    <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none snap-x mask-fade">
+                    <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 scrollbar-none snap-x mask-fade">
                         {actionChips.map((chip, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => handleChipClick(chip.prompt)}
                                 disabled={isProcessing}
-                                className="shrink-0 snap-start bg-brand-card border border-brand-border hover:border-brand-primary/55 disabled:opacity-50 text-xs text-brand-text px-3 py-1.5 rounded-full transition-all duration-200 focus:outline-none"
+                                className="shrink-0 snap-start bg-brand-card/25 border border-brand-border/80 hover:border-brand-primary/55 hover:bg-brand-card/45 disabled:opacity-50 text-[11px] text-brand-text px-2.5 py-1 rounded-lg transition-all duration-150 focus:outline-none cursor-pointer font-medium"
                             >
                                 {chip.label}
                             </button>
                         ))}
                     </div>
 
-                    <form onSubmit={handleSubmit} className="flex items-center space-x-3">
+                    <form onSubmit={handleSubmit} className="flex items-center space-x-2.5">
                         <input
                             type="text"
-                            placeholder={isProcessing ? "Processing..." : "Describe cleaning instructions or ask database issues..."}
+                            placeholder={isProcessing ? "Processing response..." : "Describe cleaning instructions or ask dataset queries..."}
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                             disabled={isProcessing}
-                            className="flex-1 bg-brand-card border border-brand-border focus:border-brand-primary rounded-xl px-4 py-3 text-sm text-brand-text placeholder-brand-muted outline-none focus:ring-1 focus:ring-brand-primary/40 disabled:opacity-50 transition-all duration-200"
+                            className="flex-1 bg-[#10121a]/60 border border-brand-border focus:border-brand-primary/80 rounded-lg px-3 py-2 text-xs text-brand-text placeholder-brand-muted outline-none focus:ring-1 focus:ring-brand-primary/30 disabled:opacity-50 transition-all duration-150 font-medium"
                         />
                         <button
                             type="submit"
                             disabled={!inputValue.trim() || isProcessing}
-                            className="bg-brand-primary hover:bg-blue-600 disabled:bg-brand-muted/20 text-white p-3 rounded-xl transition-all duration-200 shrink-0 shadow-md focus:outline-none"
+                            className="bg-brand-primary hover:bg-blue-600 disabled:bg-brand-muted/20 text-white p-2.5 rounded-lg transition-all duration-150 shrink-0 shadow-md focus:outline-none cursor-pointer active:scale-95"
                         >
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9-2-9-18-9 18 9-2zm0 0v-8" />
                             </svg>
                         </button>

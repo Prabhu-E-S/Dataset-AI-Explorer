@@ -4,15 +4,15 @@
 
 @theme {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --color-brand-bg: #0F172A;
-  --color-brand-sidebar: #111827;
-  --color-brand-card: #1E293B;
+  --color-brand-bg: #090A0F;
+  --color-brand-sidebar: #0E1016;
+  --color-brand-card: #131722;
   --color-brand-primary: #3B82F6;
   --color-brand-accent: #10B981;
-  --color-brand-text: #F8FAFC;
-  --color-brand-muted: #94A3B8;
-  --color-brand-border: #334155;
-  --color-brand-hover: #475569;
+  --color-brand-text: #F3F4F6;
+  --color-brand-muted: #8292A6;
+  --color-brand-border: #1E2538;
+  --color-brand-hover: #1E2538;
 }
 
 :root {
@@ -32,8 +32,8 @@ body {
 
 /* Premium Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -42,7 +42,7 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-brand-border);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -51,14 +51,14 @@ body {
 
 /* Custom classes for micro-animations and typography */
 .glassmorphism {
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(14, 16, 22, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #3B82F6 0%, #10B981 100%);
+  background: linear-gradient(135deg, #F3F4F6 0%, #8292A6 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

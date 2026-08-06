@@ -29,42 +29,43 @@ export default function AppLayout({ children, datasets = [], onDeleteDataset, on
     return (
         <div className="min-h-screen bg-brand-bg text-brand-text flex flex-col font-sans select-none antialiased">
             {/* 1. Header (Top Navigation) */}
-            <header className="sticky top-0 bg-brand-sidebar border-b border-brand-border h-16 flex items-center justify-between px-4 z-40">
+            <header className="sticky top-0 bg-brand-sidebar/85 backdrop-blur-md border-b border-brand-border h-14 flex items-center justify-between px-4 z-40">
                 <div className="flex items-center gap-3">
                     {/* Mobile menu trigger */}
                     <button
                         onClick={() => setMobileMenuOpen(true)}
-                        className="md:hidden p-2 text-brand-muted hover:text-white rounded-lg hover:bg-brand-card transition-colors"
+                        className="md:hidden p-1.5 text-brand-muted hover:text-white rounded-lg hover:bg-brand-hover/50 transition-colors"
                     >
-                        <FiMenu className="text-xl" />
+                        <FiMenu className="text-lg" />
                     </button>
 
-                    <Link to="/" className="flex items-center gap-2.5">
-                        <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-brand-primary to-brand-accent p-0.5 shadow-md flex items-center justify-center">
-                            <span className="font-extrabold text-white text-base">AE</span>
+                    <Link to="/" className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-lg bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center shadow-sm">
+                            <span className="font-bold text-brand-primary text-sm">AE</span>
                         </div>
-                        <div>
-                            <h1 className="font-bold text-white text-md tracking-tight leading-none">AI Dataset Explorer</h1>
-                            <span className="text-[10px] text-brand-muted font-medium uppercase tracking-wider">Workspace Phase 1</span>
+                        <div className="leading-tight text-left">
+                            <h1 className="font-semibold text-white text-sm tracking-tight">AI Dataset Explorer</h1>
+                            <span className="text-[9px] text-brand-muted font-semibold tracking-wider font-mono">WORKSPACE</span>
                         </div>
                     </Link>
                 </div>
 
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
-                        <span className="hidden sm:inline-block text-xs font-semibold text-brand-accent bg-emerald-500/10 px-2.5 py-1 rounded-full border border-brand-accent/20">
+                        <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-semibold text-brand-accent bg-brand-accent/5 px-2 py-0.5 rounded border border-brand-accent/15">
+                            <span className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse" />
                             Connection Online
                         </span>
                     </div>
 
                     {/* Profile Avatar */}
                     <div className="flex items-center gap-2 border-l border-brand-border pl-4">
-                        <div className="h-9 w-9 rounded-xl bg-brand-card border border-brand-border flex items-center justify-center text-sm font-semibold text-brand-primary shadow-inner">
+                        <div className="h-8 w-8 rounded-lg bg-brand-card border border-brand-border flex items-center justify-center text-xs font-semibold text-brand-primary">
                             PE
                         </div>
                         <div className="hidden md:block text-left">
-                            <div className="text-xs font-semibold text-white">Prabhu E S</div>
-                            <div className="text-[10px] text-brand-muted">Data Scientist</div>
+                            <div className="text-xs font-medium text-white leading-none">Prabhu E S</div>
+                            <div className="text-[9px] text-brand-muted font-mono mt-0.5">Data Scientist</div>
                         </div>
                     </div>
                 </div>
@@ -78,7 +79,7 @@ export default function AppLayout({ children, datasets = [], onDeleteDataset, on
                     {mobileMenuOpen && (
                         <motion.div
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: 0.5 }}
+                            animate={{ opacity: 0.4 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setMobileMenuOpen(false)}
                             className="fixed inset-0 bg-black z-40 md:hidden"
@@ -93,16 +94,16 @@ export default function AppLayout({ children, datasets = [], onDeleteDataset, on
                             initial={{ x: '-100%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '-100%' }}
-                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                            className="fixed top-0 bottom-0 left-0 w-72 bg-brand-sidebar border-r border-brand-border z-50 flex flex-col p-4 md:hidden"
+                            transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+                            className="fixed top-0 bottom-0 left-0 w-64 bg-brand-sidebar border-r border-brand-border z-50 flex flex-col p-4 md:hidden"
                         >
-                            <div className="flex items-center justify-between mb-6">
-                                <span className="text-xs font-bold uppercase text-brand-muted tracking-wider">Datasets Area</span>
+                            <div className="flex items-center justify-between mb-4 pb-2 border-b border-brand-border/40">
+                                <span className="text-[10px] font-bold uppercase text-brand-muted tracking-wider">Datasets</span>
                                 <button
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="p-1 text-brand-muted hover:text-white rounded-lg hover:bg-brand-card transition-colors"
+                                    className="p-1 text-brand-muted hover:text-white rounded hover:bg-brand-hover/50 transition-colors"
                                 >
-                                    <FiX className="text-xl" />
+                                    <FiX className="text-lg" />
                                 </button>
                             </div>
 
@@ -122,43 +123,43 @@ export default function AppLayout({ children, datasets = [], onDeleteDataset, on
 
                 {/* Desktop Sidebar */}
                 <aside
-                    className={`hidden md:flex flex-col bg-brand-sidebar border-r border-brand-border transition-all duration-300 relative ${sidebarCollapsed ? 'w-20' : 'w-72'
+                    className={`hidden md:flex flex-col bg-brand-sidebar border-r border-brand-border transition-all duration-300 relative ${sidebarCollapsed ? 'w-16' : 'w-64'
                         }`}
                 >
                     {/* Collapse toggle button */}
                     <button
                         onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                        className="absolute top-1/2 -translate-y-1/2 -right-3 bg-brand-card hover:bg-brand-hover text-brand-text border border-brand-border rounded-full p-1.5 shadow-md z-30 transition-transform active:scale-95"
+                        className="absolute top-1/2 -translate-y-1/2 -right-2.5 bg-brand-card hover:bg-brand-hover text-brand-text border border-brand-border rounded-full p-1 shadow-sm z-30 transition-transform hover:scale-105 active:scale-95"
                     >
-                        {sidebarCollapsed ? <FiChevronsRight size={13} /> : <FiChevronsLeft size={13} />}
+                        {sidebarCollapsed ? <FiChevronsRight size={11} /> : <FiChevronsLeft size={11} />}
                     </button>
 
-                    <div className="flex-1 flex flex-col p-4 overflow-hidden">
+                    <div className="flex-1 flex flex-col p-3.5 overflow-hidden">
                         {sidebarCollapsed ? (
-                            <div className="flex flex-col items-center gap-6 py-4">
+                            <div className="flex flex-col items-center gap-5 py-2">
                                 <button
                                     onClick={() => navigate('/')}
-                                    className={`p-3 rounded-xl border border-dashed transition-all active:scale-95 ${isUploadPage
-                                            ? 'bg-brand-primary/10 border-brand-primary text-brand-primary'
-                                            : 'border-brand-border hover:border-brand-primary text-brand-muted hover:text-white'
+                                    className={`p-2.5 rounded-lg border border-dashed transition-all active:scale-95 ${isUploadPage
+                                        ? 'bg-brand-primary/10 border-brand-primary/40 text-brand-primary'
+                                        : 'border-brand-border hover:border-brand-primary/40 text-brand-muted hover:text-white'
                                         }`}
                                     title="Upload New Dataset"
                                 >
-                                    <FiUploadCloud size={20} />
+                                    <FiUploadCloud size={18} />
                                 </button>
-                                <div className="h-px w-8 bg-brand-border" />
-                                <div className="flex-1 flex flex-col gap-3 overflow-y-auto px-1 w-full items-center">
+                                <div className="h-px w-6 bg-brand-border/60" />
+                                <div className="flex-grow flex flex-col gap-2 overflow-y-auto px-0.5 w-full items-center custom-scrollbar">
                                     {datasets.map(d => (
                                         <button
                                             key={d.id}
                                             onClick={() => navigate(`/dataset/${d.id}`)}
-                                            className={`p-2.5 rounded-lg border transition-all ${location.pathname.includes(d.id)
-                                                    ? 'bg-brand-primary/10 border-brand-primary text-brand-primary shadow-sm shadow-brand-primary/10'
-                                                    : 'border-brand-border bg-brand-card/50 text-brand-muted hover:text-white hover:border-brand-hover'
+                                            className={`p-2 rounded-lg border transition-all ${location.pathname.includes(d.id)
+                                                ? 'bg-brand-primary/10 border-brand-primary/45 text-brand-primary'
+                                                : 'border-brand-border/60 bg-brand-card/40 text-brand-muted hover:text-white hover:border-brand-border'
                                                 }`}
                                             title={d.original_filename}
                                         >
-                                            <FiDatabase size={16} />
+                                            <FiDatabase size={14} />
                                         </button>
                                     ))}
                                 </div>
@@ -198,42 +199,42 @@ function SidebarContent({ datasets, onSelect, onDelete, onSearch, searchTerm, is
                 onClick={() => {
                     navigate('/');
                 }}
-                className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold border transition-all duration-200 active:scale-[0.98] ${isUploadPage
-                        ? 'bg-brand-primary hover:bg-blue-600 text-white border-brand-primary shadow-lg shadow-brand-primary/25'
-                        : 'border-brand-border bg-brand-card hover:bg-brand-hover text-white hover:border-brand-primary'
+                className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-semibold border transition-all duration-200 active:scale-[0.98] ${isUploadPage
+                    ? 'bg-brand-primary hover:bg-blue-600 text-white border-brand-primary shadow-sm shadow-brand-primary/10'
+                    : 'border-brand-border bg-brand-card hover:bg-brand-hover text-white hover:border-brand-primary/30'
                     }`}
             >
-                <FiUploadCloud className="text-lg" />
-                <span className="text-sm">Upload Dataset</span>
+                <FiUploadCloud className="text-base" />
+                <span className="text-xs">Upload Dataset</span>
             </button>
 
             {/* Separator line */}
-            <div className="h-px bg-brand-border my-5" />
+            <div className="h-px bg-brand-border/60 my-4" />
 
             {/* Datasets Header and Search Bar */}
-            <div className="mb-4">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-brand-muted block mb-2.5">
+            <div className="mb-3 text-left">
+                <label className="text-[9px] font-bold uppercase tracking-wider text-brand-muted block mb-2">
                     Workspaces ({datasets.length})
                 </label>
                 <div className="relative group">
-                    <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted group-focus-within:text-brand-primary transition-colors text-sm" />
+                    <FiSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-brand-muted group-focus-within:text-brand-primary transition-colors text-xs" />
                     <input
                         type="text"
-                        placeholder="Search datasets..."
+                        placeholder="Search workspace..."
                         value={searchTerm || ''}
                         onChange={(e) => onSearch(e.target.value)}
-                        className="w-full bg-brand-bg border border-brand-border focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-xl pl-9 pr-4 py-2 text-xs text-brand-text placeholder-brand-muted outline-none transition-all"
+                        className="w-full bg-brand-bg border border-brand-border focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/30 rounded-lg pl-8 pr-3 py-1.5 text-xs text-brand-text placeholder-brand-muted outline-none transition-all"
                     />
                 </div>
             </div>
 
             {/* Dataset Scrollable Container */}
-            <div className="flex-1 overflow-y-auto flex flex-col gap-2.5 pr-1.5 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto flex flex-col gap-1.5 pr-1 custom-scrollbar">
                 {datasets.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-10 px-4 text-center border border-dashed border-brand-border rounded-xl">
-                        <FiDatabase className="text-brand-muted text-2xl mb-2" />
-                        <span className="text-xs text-brand-muted font-medium">No datasets loaded</span>
-                        <span className="text-[10px] text-brand-muted/70 mt-1">Upload a CSV or Excel file to begin analysis</span>
+                    <div className="flex flex-col items-center justify-center py-8 px-3 text-center border border-dashed border-brand-border rounded-lg bg-brand-bg/20">
+                        <FiDatabase className="text-brand-muted text-xl mb-1.5" />
+                        <span className="text-xs text-brand-muted font-medium">No workspaces</span>
+                        <span className="text-[9px] text-brand-muted/70 mt-0.5">Upload a raw dataset to start</span>
                     </div>
                 ) : (
                     datasets
@@ -243,18 +244,18 @@ function SidebarContent({ datasets, onSelect, onDelete, onSearch, searchTerm, is
                             return (
                                 <div
                                     key={d.id}
-                                    className={`group relative w-full flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all duration-200 ${isActive
-                                            ? 'bg-brand-primary/10 border-brand-primary text-brand-primary shadow-sm shadow-brand-primary/5'
-                                            : 'border-brand-border bg-brand-card/30 hover:bg-brand-card/85 text-brand-text hover:border-brand-hover'
+                                    className={`group relative w-full flex items-center justify-between p-2.5 rounded-lg border cursor-pointer transition-all duration-150 ${isActive
+                                        ? 'bg-brand-primary/5 border-brand-primary/50 text-brand-primary'
+                                        : 'border-brand-border/60 bg-brand-card/20 hover:bg-brand-card/50 text-brand-text hover:border-brand-border'
                                         }`}
                                     onClick={() => onSelect(d.id)}
                                 >
-                                    <div className="flex items-center gap-3 overflow-hidden pr-6">
-                                        <FiDatabase className={`text-base flex-shrink-0 ${isActive ? 'text-brand-primary' : 'text-brand-muted group-hover:text-white'}`} />
-                                        <div className="text-left overflow-hidden">
-                                            <div className="text-xs font-semibold truncate text-white">{d.original_filename}</div>
-                                            <div className="text-[10px] text-brand-muted/80 mt-0.5">
-                                                {d.rows.toLocaleString()} rows • {d.file_type}
+                                    <div className="flex items-center gap-2.5 overflow-hidden pr-5 text-left">
+                                        <FiDatabase className={`text-sm flex-shrink-0 ${isActive ? 'text-brand-primary' : 'text-brand-muted group-hover:text-white/80'}`} />
+                                        <div className="overflow-hidden">
+                                            <div className="text-xs font-medium truncate text-white">{d.original_filename}</div>
+                                            <div className="text-[9px] text-brand-muted mt-0.5 font-mono">
+                                                {d.rows.toLocaleString()} rows • {d.file_type.toUpperCase()}
                                             </div>
                                         </div>
                                     </div>
@@ -264,7 +265,7 @@ function SidebarContent({ datasets, onSelect, onDelete, onSearch, searchTerm, is
                                             e.stopPropagation();
                                             onDelete(d.id);
                                         }}
-                                        className="absolute right-3 opacity-0 group-hover:opacity-100 p-1.5 text-brand-muted hover:text-red-400 hover:bg-brand-hover rounded-lg transition-all duration-150 active:scale-95"
+                                        className="absolute right-2.5 opacity-0 group-hover:opacity-100 p-1 text-brand-muted hover:text-red-400 hover:bg-brand-hover rounded transition-all duration-100"
                                         title="Delete workspace"
                                     >
                                         <FiTrash2 className="text-xs" />

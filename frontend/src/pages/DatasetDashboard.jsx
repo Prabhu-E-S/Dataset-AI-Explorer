@@ -49,6 +49,7 @@ import {
 import DatasetPreviewTable from '../components/DatasetPreviewTable';
 import ColumnExplorer from '../components/ColumnExplorer';
 import ChatInterface from '../components/ChatInterface';
+import { FiInfo, FiRefreshCw, FiPlay, FiCpu, FiCheckCircle, FiDownload, FiPieChart, FiLayers, FiSettings } from 'react-icons/fi';
 
 const formatBytes = (bytes, decimals = 2) => {
     if (!bytes) return '0 Bytes';
@@ -214,9 +215,18 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
         setLoadingAutoML(true);
         try {
             const recommendation = await getAutoMLRecommendation(id);
-            setAutomlRecommendation(recommendation);
-            setTargetCol(recommendation.recommended_target || '');
-            setFeatureCols(recommendation.features_recommended || []);
+            const normalized = {
+                prediction_task: recommendation.prediction_type || recommendation.prediction_task,
+                recommended_target: recommendation.target_column || recommendation.recommended_target,
+                features_recommended: recommendation.feature_columns || recommendation.features_recommended || [],
+                recommended_algorithm: recommendation.recommended_algorithm,
+                expected_accuracy: recommendation.expected_accuracy,
+                evaluation_metrics: recommendation.evaluation_metrics,
+                reasoning: recommendation.reasoning
+            };
+            setAutomlRecommendation(normalized);
+            setTargetCol(normalized.recommended_target || '');
+            setFeatureCols(normalized.features_recommended || []);
         } catch (err) {
             console.error("Failed to parse AutoML recommendations: ", err);
             alert("AutoML Analysis failed: " + (err.response?.data?.detail || err.message));

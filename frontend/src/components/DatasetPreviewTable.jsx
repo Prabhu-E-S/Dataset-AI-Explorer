@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import {
-    FiSearch,
-    FiChevronLeft,
-    FiChevronRight,
-    FiChevronsLeft,
-    FiChevronsRight,
-    FiFilter
-} from 'react-icons/fi';
+    MagnifyingGlass,
+    CaretLeft,
+    CaretRight,
+    CaretDoubleLeft,
+    CaretDoubleRight,
+    Funnel
+} from '@phosphor-icons/react';
+import { FiSearch, FiFilter } from 'react-icons/fi';
 
 export default function DatasetPreviewTable({ columns = [], data = [], totalRows = 0 }) {
     const [searchTerm, setSearchTerm] = useState('');
@@ -146,18 +147,18 @@ export default function DatasetPreviewTable({ columns = [], data = [], totalRows
                     <button
                         onClick={() => setCurrentPage(1)}
                         disabled={currentPage === 1}
-                        className="p-1.5 border border-brand-border rounded-lg bg-brand-card/10 text-brand-text hover:bg-brand-hover hover:border-brand-border disabled:opacity-35 disabled:hover:bg-brand-card/10 disabled:hover:border-brand-border transition-all active:scale-95 cursor-pointer"
+                        className="p-1.5 border border-brand-border rounded-lg bg-brand-card/10 text-brand-text hover:bg-brand-hover hover:border-brand-border disabled:opacity-35 disabled:hover:bg-brand-card/10 disabled:hover:border-brand-border active-scale cursor-pointer"
                         title="First page"
                     >
-                        <FiChevronsLeft size={13} />
+                        <CaretDoubleLeft size={13} />
                     </button>
                     <button
                         onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                         disabled={currentPage === 1}
-                        className="p-1.5 border border-brand-border rounded-lg bg-brand-card/10 text-brand-text hover:bg-brand-hover hover:border-brand-border disabled:opacity-35 disabled:hover:bg-brand-card/10 disabled:hover:border-brand-border transition-all active:scale-95 cursor-pointer"
+                        className="p-1.5 border border-brand-border rounded-lg bg-brand-card/10 text-brand-text hover:bg-brand-hover hover:border-brand-border disabled:opacity-35 disabled:hover:bg-brand-card/10 disabled:hover:border-brand-border active-scale cursor-pointer"
                         title="Previous page"
                     >
-                        <FiChevronLeft size={13} />
+                        <CaretLeft size={13} />
                     </button>
 
                     <span className="px-3 py-1 text-xs font-semibold text-white bg-brand-card/30 border border-brand-border rounded-lg select-none">
@@ -167,18 +168,18 @@ export default function DatasetPreviewTable({ columns = [], data = [], totalRows
                     <button
                         onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                         disabled={currentPage === totalPages}
-                        className="p-1.5 border border-brand-border rounded-lg bg-brand-card/10 text-brand-text hover:bg-brand-hover hover:border-brand-border disabled:opacity-35 disabled:hover:bg-brand-card/10 disabled:hover:border-brand-border transition-all active:scale-95 cursor-pointer"
+                        className="p-1.5 border border-brand-border rounded-lg bg-brand-card/10 text-brand-text hover:bg-brand-hover hover:border-brand-border disabled:opacity-35 disabled:hover:bg-brand-card/10 disabled:hover:border-brand-border active-scale cursor-pointer"
                         title="Next page"
                     >
-                        <FiChevronRight size={13} />
+                        <CaretRight size={13} />
                     </button>
                     <button
                         onClick={() => setCurrentPage(totalPages)}
                         disabled={currentPage === totalPages}
-                        className="p-1.5 border border-brand-border rounded-lg bg-brand-card/10 text-brand-text hover:bg-brand-hover hover:border-brand-border disabled:opacity-35 disabled:hover:bg-brand-card/10 disabled:hover:border-brand-border transition-all active:scale-95 cursor-pointer"
+                        className="p-1.5 border border-brand-border rounded-lg bg-brand-card/10 text-brand-text hover:bg-brand-hover hover:border-brand-border disabled:opacity-35 disabled:hover:bg-brand-card/10 disabled:hover:border-brand-border active-scale cursor-pointer"
                         title="Last page"
                     >
-                        <FiChevronsRight size={13} />
+                        <CaretDoubleRight size={13} />
                     </button>
                 </div>
             </div>

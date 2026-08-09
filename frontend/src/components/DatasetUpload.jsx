@@ -1,19 +1,19 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    FiUploadCloud,
-    FiFileText,
-    FiCheckCircle,
-    FiAlertCircle,
-    FiRefreshCw,
-    FiClock,
-    FiTrendingUp,
-    FiHardDrive,
-    FiActivity,
-    FiAward,
-    FiPieChart
-} from 'react-icons/fi';
+    CloudArrowUp,
+    FileText,
+    CheckCircle,
+    WarningCircle,
+    ArrowClockwise,
+    Clock,
+    HardDrive,
+    Pulse,
+    Medal,
+    ChartPieSlice
+} from '@phosphor-icons/react';
 
 const formatBytes = (bytes, decimals = 2) => {
     if (!bytes) return '0 Bytes';
@@ -25,6 +25,7 @@ const formatBytes = (bytes, decimals = 2) => {
 };
 
 export default function DatasetUpload({ onUploadComplete, recentDatasets = [] }) {
+    const navigate = useNavigate();
     const [uploading, setUploading] = useState(false);
     const [progress, setProgress] = useState(0);
     const [errorMsg, setErrorMsg] = useState(null);
@@ -130,7 +131,7 @@ export default function DatasetUpload({ onUploadComplete, recentDatasets = [] })
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 0.1 }}
                                     exit={{ opacity: 0 }}
-                                    className="absolute inset-0 bg-brand-primary blur-3xl animate-pulse"
+                                    className="absolute inset-0 bg-brand-primary blur-3xl"
                                 />
                             )}
                         </AnimatePresence>
@@ -149,9 +150,9 @@ export default function DatasetUpload({ onUploadComplete, recentDatasets = [] })
                                     }`}
                             >
                                 {uploading ? (
-                                    <FiRefreshCw className="text-xl animate-spin" />
+                                    <ArrowClockwise className="text-xl animate-spin" />
                                 ) : (
-                                    <FiUploadCloud className="text-xl" />
+                                    <CloudArrowUp className="text-xl" />
                                 )}
                             </motion.div>
 
@@ -163,7 +164,7 @@ export default function DatasetUpload({ onUploadComplete, recentDatasets = [] })
                                     <p className="text-xs text-brand-muted mb-4 max-w-sm">
                                         Supports spreadsheet uploads including <span className="text-slate-205 font-medium">CSV</span> or <span className="text-slate-205 font-medium">Excel (.xlsx, .xls)</span> up to 50MB.
                                     </p>
-                                    <button className="px-4 py-2 bg-brand-card hover:bg-brand-hover text-white text-xs font-semibold rounded-lg border border-brand-border transition-all active:scale-95 shadow-sm">
+                                    <button className="px-4 py-2 bg-brand-card hover:bg-brand-hover text-white text-xs font-semibold rounded-lg border border-brand-border active-scale shadow-sm">
                                         Select File
                                     </button>
                                 </>
@@ -197,7 +198,7 @@ export default function DatasetUpload({ onUploadComplete, recentDatasets = [] })
                                 exit={{ opacity: 0, y: -5 }}
                                 className="bg-red-500/5 border border-red-500/15 p-3 rounded-lg flex items-start gap-2.5 text-left"
                             >
-                                <FiAlertCircle className="text-red-400 mt-0.5 flex-shrink-0" />
+                                <WarningCircle className="text-red-400 mt-0.5 flex-shrink-0" />
                                 <div>
                                     <h4 className="text-xs font-semibold text-red-200">Upload Process Failed</h4>
                                     <p className="text-[11px] text-red-300/80 mt-0.5">{errorMsg}</p>
@@ -212,7 +213,7 @@ export default function DatasetUpload({ onUploadComplete, recentDatasets = [] })
                                 exit={{ opacity: 0, y: -5 }}
                                 className="bg-emerald-500/5 border border-brand-accent/15 p-3 rounded-lg flex items-start gap-2.5 text-left"
                             >
-                                <FiCheckCircle className="text-brand-accent mt-0.5 flex-shrink-0" />
+                                <CheckCircle className="text-brand-accent mt-0.5 flex-shrink-0" />
                                 <div className="flex-grow">
                                     <h4 className="text-xs font-semibold text-white">Dataset Loaded Successfully</h4>
                                     <p className="text-[11px] text-brand-muted mt-0.5">
@@ -233,7 +234,7 @@ export default function DatasetUpload({ onUploadComplete, recentDatasets = [] })
                     {/* Quick Metrics */}
                     <div className="bg-brand-card/20 border border-brand-border/60 rounded-xl p-4.5 flex flex-col gap-3.5">
                         <h4 className="text-[10px] font-bold uppercase tracking-wider text-brand-muted flex items-center gap-1.5 text-left">
-                            <FiHardDrive className="text-brand-primary" /> Workspace Status
+                            <HardDrive className="text-brand-primary" /> Workspace Status
                         </h4>
 
                         <div className="grid grid-cols-2 gap-3 border-b border-brand-border/40 pb-3">
@@ -253,14 +254,14 @@ export default function DatasetUpload({ onUploadComplete, recentDatasets = [] })
                             <div className="text-left">
                                 <span className="text-[9px] text-brand-muted block font-semibold">REPORTS</span>
                                 <span className="text-lg font-bold text-white mt-0.5 block flex items-center gap-1">
-                                    <FiPieChart size={12} className="text-brand-primary" />
+                                    <ChartPieSlice size={12} className="text-brand-primary" />
                                     <span>{dbSchemaStats.total_reports}</span>
                                 </span>
                             </div>
                             <div className="text-left">
                                 <span className="text-[9px] text-brand-muted block font-semibold">QUALITY</span>
                                 <span className="text-lg font-bold text-brand-accent mt-0.5 block flex items-center gap-1">
-                                    <FiAward size={12} />
+                                    <Medal size={12} />
                                     <span>{(dbSchemaStats.avg_quality_score || 0).toFixed(1)}%</span>
                                 </span>
                             </div>
@@ -270,7 +271,7 @@ export default function DatasetUpload({ onUploadComplete, recentDatasets = [] })
                     {/* Activity Logs Timeline Feed */}
                     <div className="flex flex-col gap-2.5">
                         <label className="text-[10px] font-bold uppercase tracking-wider text-brand-muted text-left flex items-center gap-1.5">
-                            <FiActivity className="text-brand-primary" />
+                            <Pulse className="text-brand-primary" />
                             <span>System Activity Timeline</span>
                         </label>
 
@@ -283,7 +284,7 @@ export default function DatasetUpload({ onUploadComplete, recentDatasets = [] })
                                 activityTimeline.slice(0, 10).map((act) => (
                                     <div key={act.id} className="p-2.5 bg-brand-card/10 border border-brand-border/60 rounded-lg flex gap-2">
                                         <div className="h-5 w-5 bg-brand-card border border-brand-border/60 rounded flex items-center justify-center shrink-0">
-                                            <FiClock size={10} className="text-brand-muted" />
+                                            <Clock size={10} className="text-brand-muted" />
                                         </div>
                                         <div className="flex-grow min-w-0">
                                             <div className="flex justify-between items-center leading-none">
@@ -309,17 +310,18 @@ export default function DatasetUpload({ onUploadComplete, recentDatasets = [] })
                         <div className="flex flex-col gap-1.5 max-h-[160px] overflow-y-auto pr-1 custom-scrollbar">
                             {recentDatasets.length === 0 ? (
                                 <div className="text-center py-5 border border-dashed border-brand-border/60 rounded-lg bg-brand-card/5">
-                                    <FiClock className="text-brand-muted mx-auto text-base mb-1" />
+                                    <Clock className="text-brand-muted mx-auto text-base mb-1" />
                                     <span className="text-[10px] text-brand-muted font-medium">No uploads yet</span>
                                 </div>
                             ) : (
                                 recentDatasets.slice(0, 4).map((d) => (
                                     <div
                                         key={d.id}
-                                        className="flex items-center gap-2.5 p-2 bg-brand-card/15 border border-brand-border/50 hover:bg-brand-card/45 rounded-lg transition-all"
+                                        onClick={() => navigate(`/dataset/${d.id}`)}
+                                        className="flex items-center gap-2.5 p-2 bg-brand-card/15 border border-brand-border/50 hover:bg-brand-card/45 rounded-lg active-scale cursor-pointer transition-all"
                                     >
                                         <div className="h-7 w-7 bg-brand-card border border-brand-border/60 rounded flex items-center justify-center text-brand-muted shrink-0">
-                                            <FiFileText className="text-xs" />
+                                            <FileText className="text-xs" />
                                         </div>
                                         <div className="flex-1 text-left min-w-0">
                                             <h4 className="text-xs font-semibold text-white truncate">{d.original_filename}</h4>

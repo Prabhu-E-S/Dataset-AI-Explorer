@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { X, MagnifyingGlass, CaretDown } from '@phosphor-icons/react';
 
 export default function ColumnExplorer({ isOpen, onClose, columnsInfo }) {
     const [searchTerm, setSearchTerm] = useState('');
@@ -46,33 +47,23 @@ export default function ColumnExplorer({ isOpen, onClose, columnsInfo }) {
                             </div>
                             <button
                                 onClick={onClose}
-                                className="p-1.5 rounded-lg hover:bg-brand-hover text-brand-muted hover:text-brand-text transition-colors"
+                                className="p-1.5 rounded-lg hover:bg-brand-hover text-brand-muted hover:text-brand-text active-scale transition-colors"
                                 title="Collapse sidebar"
                             >
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
+                                <X size={16} />
                             </button>
                         </div>
 
-                        {/* Quick Clean Search Filter */}
                         <div className="p-3 border-b border-brand-border">
-                            <div className="relative">
+                            <div className="relative group">
+                                <MagnifyingGlass className="absolute left-2.5 top-1/2 -translate-y-1/2 text-brand-muted group-focus-within:text-brand-primary transition-colors text-xs" />
                                 <input
                                     type="text"
                                     placeholder="Filter columns..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full bg-brand-bg border border-brand-border rounded-lg py-1.5 pl-8 pr-4 text-sm text-brand-text placeholder-brand-muted focus:outline-none focus:border-brand-primary transition-all duration-200"
+                                    className="w-full bg-brand-bg border border-brand-border focus:border-brand-primary/80 focus:ring-1 focus:ring-brand-primary/20 rounded-lg pl-8 pr-3 py-1.5 text-xs text-brand-text placeholder-brand-muted outline-none transition-all font-medium"
                                 />
-                                <svg
-                                    className="w-4 h-4 text-brand-muted absolute left-2.5 top-2.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
                             </div>
                         </div>
 
@@ -96,8 +87,8 @@ export default function ColumnExplorer({ isOpen, onClose, columnsInfo }) {
                                         <div
                                             key={name}
                                             className={`border rounded-lg transition-all duration-200 ${isExpanded
-                                                    ? 'border-brand-primary bg-brand-card/50'
-                                                    : 'border-brand-border hover:border-brand-hover bg-brand-card/20'
+                                                ? 'border-brand-primary bg-brand-card/50'
+                                                : 'border-brand-border hover:border-brand-hover bg-brand-card/20'
                                                 }`}
                                         >
                                             {/* Accordion Trigger */}
@@ -115,15 +106,10 @@ export default function ColumnExplorer({ isOpen, onClose, columnsInfo }) {
                                                         </p>
                                                     </div>
                                                 </div>
-                                                <svg
-                                                    className={`w-4 h-4 text-brand-muted shrink-0 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-brand-primary' : ''
+                                                <CaretDown
+                                                    className={`w-3.5 h-3.5 text-brand-muted shrink-0 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-brand-primary' : ''
                                                         }`}
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    stroke="currentColor"
-                                                >
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                                </svg>
+                                                />
                                             </button>
 
                                             {/* Expandable statistics panel */}
@@ -133,7 +119,7 @@ export default function ColumnExplorer({ isOpen, onClose, columnsInfo }) {
                                                         initial={{ height: 0, opacity: 0 }}
                                                         animate={{ height: 'auto', opacity: 1 }}
                                                         exit={{ height: 0, opacity: 0 }}
-                                                        transition={{ duration: 0.2 }}
+                                                        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
                                                         className="overflow-hidden border-t border-brand-border/40 font-sans"
                                                     >
                                                         <div className="p-3 space-y-2 text-xs">

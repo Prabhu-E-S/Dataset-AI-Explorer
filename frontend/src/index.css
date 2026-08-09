@@ -1,9 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Geist+Mono:wght@300;400;500;650;700&display=swap');
+
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 @theme {
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
   --color-brand-bg: #090A0F;
   --color-brand-sidebar: #0E1016;
   --color-brand-card: #131722;
@@ -13,6 +14,10 @@
   --color-brand-muted: #8292A6;
   --color-brand-border: #1E2538;
   --color-brand-hover: #1E2538;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 :root {
@@ -62,4 +67,19 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* Tactile button dynamic click feedback */
+.active-scale {
+  transition: transform 160ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .active-scale:hover {
+    filter: brightness(1.08);
+  }
+}
+
+.active-scale:active {
+  transform: scale(0.97) !important;
 }

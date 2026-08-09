@@ -1,28 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import NumberFlow from '@number-flow/react';
 import {
-    FiDatabase,
-    FiFileText,
-    FiList,
-    FiGrid,
-    FiAlertCircle,
-    FiTrash2,
-    FiCompass,
-    FiActivity,
-    FiMessageSquare,
-    FiTrendingUp,
-    FiPieChart,
-    FiLayers,
-    FiBell,
-    FiSettings,
-    FiDownload,
-    FiPlay,
-    FiCpu,
-    FiCalendar,
-    FiCheckCircle,
-    FiRefreshCw
-} from 'react-icons/fi';
+    Database,
+    FileText,
+    List,
+    SquaresFour,
+    WarningCircle,
+    Trash,
+    Compass,
+    Pulse,
+    ChatTeardropText,
+    TrendUp,
+    ChartPieSlice,
+    Stack,
+    Bell,
+    Gear,
+    Download,
+    Play,
+    Cpu,
+    Calendar,
+    CheckCircle,
+    ArrowClockwise
+} from '@phosphor-icons/react';
 import {
     getDatasetProfile,
     getDatasetPreview,
@@ -42,7 +43,8 @@ import {
     getAnalyticsReportDetails,
     getDownloadReportUrl,
     getDatasetVersions,
-    restoreDatasetVersion
+    restoreDatasetVersion,
+    getNotifications
 } from '../services/api';
 import DatasetPreviewTable from '../components/DatasetPreviewTable';
 import ColumnExplorer from '../components/ColumnExplorer';
@@ -514,7 +516,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
     if (error) {
         return (
             <div className="flex-1 flex flex-col items-center justify-center p-6 text-center max-w-md mx-auto">
-                <FiAlertCircle className="text-red-400 text-5xl mb-4" />
+                <WarningCircle className="text-red-400 text-5xl mb-4" />
                 <h3 className="text-lg font-bold text-white mb-2">Failed to load workspace</h3>
                 <p className="text-xs text-brand-muted mb-6">{error}</p>
                 <button
@@ -523,6 +525,21 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                 >
                     Return to Upload
                 </button>
+            </div>
+        );
+    }
+
+    if (!profile) {
+        return (
+            <div className="flex-1 flex flex-col items-center justify-center">
+                <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                    className="h-10 w-10 border-4 border-brand-primary border-t-transparent rounded-full mb-4"
+                />
+                <p className="text-xs text-brand-muted font-bold tracking-wider uppercase animate-pulse">
+                    Parsing profiling insights...
+                </p>
             </div>
         );
     }
@@ -536,7 +553,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                 <div className="text-left w-full sm:w-auto">
                     <div className="flex items-center gap-2.5">
                         <div className="h-8.5 w-8.5 bg-brand-primary/10 border border-brand-primary/20 rounded-lg flex items-center justify-center text-brand-primary">
-                            <FiFileText className="text-base" />
+                            <FileText className="text-base" />
                         </div>
                         <div className="min-w-0">
                             <h2 className="text-xl font-bold text-white truncate max-w-lg" title={original_filename}>
@@ -553,7 +570,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                     {/* Command Palette Indicator */}
                     <button
                         onClick={() => setShowCtrlK(true)}
-                        className="flex items-center gap-2 bg-brand-card/20 hover:bg-brand-hover text-brand-text border border-brand-border/80 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-150 active:scale-95"
+                        className="flex items-center gap-2 bg-brand-card/20 hover:bg-brand-hover text-brand-text border border-brand-border/80 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-150 active-scale"
                     >
                         <span>Actions</span>
                         <kbd className="bg-brand-bg px-1.5 py-0.5 rounded border border-brand-border text-[9px] font-mono leading-none">Ctrl+K</kbd>
@@ -562,10 +579,10 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                     {/* Version history button */}
                     <button
                         onClick={() => setShowVersions(true)}
-                        className="flex items-center gap-2 bg-brand-card/20 hover:bg-brand-hover text-brand-text border border-brand-border/80 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-150 active:scale-95"
+                        className="flex items-center gap-2 bg-brand-card/20 hover:bg-brand-hover text-brand-text border border-brand-border/80 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-150 active-scale"
                         title="Version Workspace History"
                     >
-                        <FiLayers size={12} className="text-brand-accent animate-pulse" />
+                        <Stack size={12} className="text-brand-accent" />
                         <span>Versions</span>
                     </button>
 
@@ -573,10 +590,10 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                     <div className="relative">
                         <button
                             onClick={() => setShowNotifications(prev => !prev)}
-                            className="p-2 bg-brand-card/20 hover:bg-brand-hover text-brand-text border border-brand-border/80 rounded-lg cursor-pointer relative transition-all duration-150 active:scale-95"
+                            className="p-2 bg-brand-card/20 hover:bg-brand-hover text-brand-text border border-brand-border/80 rounded-lg cursor-pointer relative transition-all duration-150 active-scale"
                             title="Notifications Feed Alerts"
                         >
-                            <FiBell size={12} className={notifications.some(n => !n.read) ? "text-amber-400 animate-bounce" : "text-brand-muted"} />
+                            <Bell size={12} className={notifications.some(n => !n.read) ? "text-amber-400" : "text-brand-muted"} />
                             {notifications.some(n => !n.read) && (
                                 <span className="absolute -top-1 -right-1 h-3.5 w-3.5 bg-amber-500 text-brand-bg text-[8px] font-black rounded-full flex items-center justify-center">
                                     {notifications.filter(n => !n.read).length}
@@ -589,7 +606,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                             <div className="absolute right-0 mt-2 w-64 bg-brand-sidebar border border-brand-border rounded-lg shadow-lg z-50 p-3 flex flex-col gap-2.5 text-left">
                                 <div className="flex justify-between items-center border-b border-brand-border/40 pb-1.5">
                                     <h4 className="text-[9px] uppercase font-bold text-white tracking-wider flex items-center gap-1">
-                                        <FiBell className="text-amber-400" />
+                                        <Bell className="text-amber-400" />
                                         <span>Alerts Feed</span>
                                     </h4>
                                     {notifications.some(n => !n.read) && (
@@ -633,17 +650,17 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                     {/* Settings Trigger */}
                     <button
                         onClick={() => setShowSettings(true)}
-                        className="p-2 bg-brand-card/20 hover:bg-brand-hover text-brand-text border border-brand-border/80 rounded-lg cursor-pointer transition-all duration-150 active:scale-95"
+                        className="p-2 bg-brand-card/20 hover:bg-brand-hover text-brand-text border border-brand-border/80 rounded-lg cursor-pointer transition-all duration-150 active-scale"
                         title="Preferences Config"
                     >
-                        <FiSettings size={12} className="text-brand-muted" />
+                        <Gear size={12} className="text-brand-muted" />
                     </button>
 
                     <button
                         onClick={handleDelete}
-                        className="flex items-center justify-center gap-1.5 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/15 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95 cursor-pointer"
+                        className="flex items-center justify-center gap-1.5 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/15 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all active-scale cursor-pointer"
                     >
-                        <FiTrash2 className="text-xs" />
+                        <Trash className="text-xs" />
                         <span>Delete Workspace</span>
                     </button>
                 </div>
@@ -651,11 +668,11 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
 
             {/* 2. Key Metrics Widgets Row */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <MetricCard title="Total Rows" value={rows.toLocaleString()} subtitle="Overall Records Count" icon={<FiGrid className="text-blue-400" />} />
-                <MetricCard title="Total Columns" value={columns.toLocaleString()} subtitle="Dimensional Attributes" icon={<FiList className="text-emerald-400" />} />
-                <MetricCard title="Duplicate Rows" value={profile_data.duplicate_rows.toLocaleString()} subtitle={`${((profile_data.duplicate_rows / rows) * 100).toFixed(1)}% of dataset`} icon={<FiAlertCircle className="text-amber-400" />} highlight={profile_data.duplicate_rows > 0} />
-                <MetricCard title="Missing Values" value={profile_data.missing_values_total.toLocaleString()} subtitle="Across all columns" icon={<FiCompass className="text-indigo-400" />} />
-                <MetricCard title="File Footprint" value={formatBytes(file_size)} subtitle="Physical File size" icon={<FiDatabase className="text-purple-400" />} />
+                <MetricCard title="Total Rows" value={rows} subtitle="Overall Records Count" icon={<SquaresFour className="text-blue-400" />} />
+                <MetricCard title="Total Columns" value={columns} subtitle="Dimensional Attributes" icon={<List className="text-emerald-400" />} />
+                <MetricCard title="Duplicate Rows" value={profile_data.duplicate_rows} subtitle={`${((profile_data.duplicate_rows / rows) * 100).toFixed(1)}% of dataset`} icon={<WarningCircle className="text-amber-400" />} highlight={profile_data.duplicate_rows > 0} />
+                <MetricCard title="Missing Values" value={profile_data.missing_values_total} subtitle="Across all columns" icon={<Compass className="text-indigo-400" />} />
+                <MetricCard title="File Footprint" value={formatBytes(file_size)} subtitle="Physical File size" icon={<Database className="text-purple-400" />} />
             </div>
 
             {/* 3. Navigation Tabs */}
@@ -668,7 +685,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                             : 'border-transparent text-brand-muted hover:text-white/80'
                             }`}
                     >
-                        <FiGrid className="text-xs" />
+                        <SquaresFour className="text-xs" />
                         <span>Data Preview</span>
                     </button>
                     <button
@@ -678,7 +695,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                             : 'border-transparent text-brand-muted hover:text-white/80'
                             }`}
                     >
-                        <FiActivity className="text-xs" />
+                        <Pulse className="text-xs" />
                         <span>Dataset Profiling</span>
                     </button>
                     <button
@@ -688,7 +705,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                             : 'border-transparent text-brand-muted hover:text-white/80'
                             }`}
                     >
-                        <FiMessageSquare className="text-xs text-brand-accent animate-pulse" />
+                        <ChatTeardropText className="text-xs text-brand-accent" />
                         <span>AI Data Analyst</span>
                     </button>
                     <button
@@ -703,7 +720,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                             : 'border-transparent text-brand-muted hover:text-white/80'
                             }`}
                     >
-                        <FiCpu className="text-xs text-blue-400" />
+                        <Cpu className="text-xs text-blue-400" />
                         <span>AutoML & Predict</span>
                     </button>
                     <button
@@ -713,7 +730,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                             : 'border-transparent text-brand-muted hover:text-white/80'
                             }`}
                     >
-                        <FiPieChart className="text-xs text-purple-400" />
+                        <ChartPieSlice className="text-xs text-purple-400" />
                         <span>BI Reports</span>
                     </button>
                 </div>
@@ -721,9 +738,9 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                 {/* Collapsible Sidebar Button */}
                 <button
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-border bg-brand-card/15 hover:bg-brand-hover text-brand-text hover:text-white transition-all text-xs font-semibold cursor-pointer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-border bg-brand-card/15 hover:bg-brand-hover text-brand-text hover:text-white transition-all text-xs font-semibold cursor-pointer active-scale"
                 >
-                    <FiCompass className={`shrink-0 ${isSidebarOpen ? 'text-brand-primary rotate-45' : 'text-brand-muted'} transition-transform duration-300`} />
+                    <Compass className={`shrink-0 ${isSidebarOpen ? 'text-brand-primary rotate-45' : 'text-brand-muted'} transition-transform duration-300`} />
                     <span>Columns Metadata</span>
                 </button>
             </div>
@@ -1606,7 +1623,9 @@ function MetricCard({ title, value, subtitle, icon, highlight = false }) {
                     {icon}
                 </div>
             </div>
-            <div className={`text-xl font-bold ${highlight ? 'text-amber-400 font-semibold' : 'text-white'}`}>{value}</div>
+            <div className={`text-xl font-bold flex items-center ${highlight ? 'text-amber-400 font-semibold' : 'text-white'}`}>
+                {typeof value === 'number' ? <NumberFlow value={value} /> : value}
+            </div>
             <span className="text-[9px] text-brand-muted mt-1 block font-medium truncate">{subtitle}</span>
         </div>
     );

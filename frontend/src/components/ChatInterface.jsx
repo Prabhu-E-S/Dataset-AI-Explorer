@@ -1,5 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+    Brain,
+    User,
+    Copy,
+    Check,
+    PaperPlaneRight,
+    Broom,
+    DownloadSimple,
+    FilePdf,
+    Info,
+    Sparkle,
+    Terminal,
+    Gear,
+    ArrowCounterClockwise
+} from '@phosphor-icons/react';
 import { getDownloadUrl, getDownloadReportUrl } from '../services/api';
 
 // --- Inline Plotly Chart renderer ---
@@ -29,53 +44,176 @@ function PlotlyChart({ chartData }) {
     );
 }
 
-// --- Markdown parser ---
-function MessageFormatter({ text }) {
-    if (!text) return null;
-    const segments = text.split('\n');
+// --- Custom Code Block component with individual copy state ---
+function CodeBlock({ language, code }) {
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(code).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }).catch(err => {
+            console.error('Failed to copy code block:', err);
+        });
+    };
 
     return (
-        <div className="space-y-2 text-sm leading-relaxed text-slate-200">
-            {segments.map((seg, idx) => {
-                const trimmed = seg.trim();
-                if (!trimmed) return <div key={idx} className="h-2" />;
+        <div className="border border-brand-border/60 rounded-xl overflow-hidden my-4 bg-[#0d0e15] shadow-lg">
+            <div className="flex justify-between items-center px-4 py-2 bg-brand-sidebar border-b border-brand-border/40 text-[10px] uppercase font-mono tracking-widest text-brand-muted">
+                <span className="flex items-center gap-1.5 font-bold">
+                    <Terminal size={12} className="text-brand-primary" />
+                    {language || 'code'}
+                </span>
+                <button
+                    onClick={handleCopy}
+                    className="hover:text-brand-primary transition-colors flex items-center gap-1 cursor-pointer py-0.5 px-1.5 rounded bg-brand-bg/40 border border-brand-border/20 active:scale-95"
+                >
+                    {copied ? (
+                        <>
+                            <Check size={11} className="text-emerald-400" />
+                            <span className="text-emerald-400">Copied!</span>
+                        </>
+                    ) : (
+                        <>
+                            <Copy size={11} />
+                            <span>Copy code</span>
+                        </>
+                    )}
+                </button>
+            </div>
+            <pre className="p-4 overflow-x-auto font-mono text-xs text-brand-accent leading-relaxed bg-[#0a0b10]/80">
+                <code>{code}</code>
+            </pre>
+        </div>
+    );
+}
 
-                if (trimmed.startsWith('-') || trimmed.startsWith('*')) {
-                    const content = trimmed.substring(1).trim();
-                    return (
-                        <ul key={idx} className="list-disc pl-5 my-1 text-slate-300">
-                            <li>{parseFormat(content)}</li>
-                        </ul>
-                    );
+// --- Markdown Parser Supporting headers, bold, bullet points, inline code and code block fencing ---
+function MessageFormatter({ text }) {
+    if (!text) return null;
+
+    // RegEx checking for code block blocks: ```[lang]\n[code]```
+    const regex = /```(\w*)\n([\s\S]*?)```/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = regex.exec(text)) !== null) {
+        // Push text preceding code block
+        if (match.index > lastIndex) {
+            parts.push({
+                type: 'text',
+                content: text.substring(lastIndex, match.index)
+            });
+        }
+        // Push code block item
+        parts.push({
+            type: 'code',
+            language: match[1],
+            content: match[2].trim()
+        });
+        lastIndex = regex.lastIndex;
+    }
+
+    if (lastIndex < text.length) {
+        parts.push({
+            type: 'text',
+            content: text.substring(lastIndex)
+        });
+    }
+
+    return (
+        <div className="space-y-3.5 text-sm leading-relaxed text-slate-100 font-normal">
+            {parts.map((part, index) => {
+                if (part.type === 'code') {
+                    return <CodeBlock key={index} language={part.language} code={part.content} />;
                 }
 
-                if (trimmed.startsWith('#')) {
-                    const depth = trimmed.match(/^#+/)[0].length;
-                    const content = trimmed.replace(/^#+/, '').trim();
-                    const classes = depth === 1
-                        ? 'text-lg font-bold text-brand-primary mt-3 mb-1'
-                        : 'text-base font-semibold text-brand-accent mt-2 mb-1';
-                    return <div key={idx} className={classes}>{parseFormat(content)}</div>;
-                }
+                // Render paragraphs, lists, headers and format inline backticks
+                const lineSegments = part.content.split('\n');
+                return (
+                    <div key={index} className="space-y-2">
+                        {lineSegments.map((line, idx) => {
+                            const trimmed = line.trim();
+                            if (!trimmed) return <div key={idx} className="h-1" />;
 
-                return <p key={idx}>{parseFormat(trimmed)}</p>;
+                            // Headers
+                            if (trimmed.startsWith('#')) {
+                                const depth = (trimmed.match(/^#+/) || ['#'])[0].length;
+                                const content = trimmed.replace(/^#+/, '').trim();
+                                if (depth === 1) {
+                                    return <h1 key={idx} className="text-xl font-bold tracking-tight text-white mt-4 mb-2">{parseInlineFormat(content)}</h1>;
+                                } else if (depth === 2) {
+                                    return <h2 key={idx} className="text-lg font-semibold tracking-tight text-white mt-3.5 mb-1.5">{parseInlineFormat(content)}</h2>;
+                                } else {
+                                    return <h3 key={idx} className="text-base font-medium text-brand-primary mt-3 mb-1">{parseInlineFormat(content)}</h3>;
+                                }
+                            }
+
+                            // Bullet Lists
+                            if (trimmed.startsWith('-') || trimmed.startsWith('*')) {
+                                const content = trimmed.substring(1).trim();
+                                return (
+                                    <ul key={idx} className="list-disc pl-5 my-1 text-slate-200">
+                                        <li className="pl-0.5">{parseInlineFormat(content)}</li>
+                                    </ul>
+                                );
+                            }
+
+                            // Numbered Lists
+                            if (/^\d+\./.test(trimmed)) {
+                                const dotIndex = trimmed.indexOf('.');
+                                const number = trimmed.substring(0, dotIndex);
+                                const content = trimmed.substring(dotIndex + 1).trim();
+                                return (
+                                    <ol key={idx} className="list-decimal pl-5 my-1 text-slate-200" start={parseInt(number)}>
+                                        <li className="pl-0.5">{parseInlineFormat(content)}</li>
+                                    </ol>
+                                );
+                            }
+
+                            return <p key={idx} className="text-slate-200">{parseInlineFormat(trimmed)}</p>;
+                        })}
+                    </div>
+                );
             })}
         </div>
     );
 }
 
-function parseFormat(text) {
-    const parts = text.split('**');
-    if (parts.length > 1) {
-        return parts.map((part, index) =>
-            index % 2 === 1 ? <strong key={index} className="text-brand-primary font-semibold">{part}</strong> : part
-        );
-    }
-    return text;
+// Format double asterisks (bolds) and single backticks (inline codes)
+function parseInlineFormat(text) {
+    if (!text) return '';
+
+    // First handle double asterisks (bold)
+    let segments = text.split('**');
+    let boldNodes = segments.map((part, index) => {
+        if (index % 2 === 1) {
+            return <strong key={`b-${index}`} className="text-brand-primary font-bold">{part}</strong>;
+        }
+
+        // Inside unchanged text, look for inline code (ticks)
+        let codeSegs = part.split('`');
+        if (codeSegs.length > 1) {
+            return codeSegs.map((codePart, codeIdx) => {
+                if (codeIdx % 2 === 1) {
+                    return (
+                        <code key={`c-${codeIdx}`} className="px-1.5 py-0.5 rounded bg-brand-card/75 border border-brand-border/60 text-brand-accent text-xs font-mono font-bold mx-0.5">
+                            {codePart}
+                        </code>
+                    );
+                }
+                return codePart;
+            });
+        }
+        return part;
+    });
+
+    return boldNodes;
 }
 
 // --- Circular Score rendering ---
-function CircularProgress({ score, size = 120, strokeWidth = 10 }) {
+function CircularProgress({ score, size = 100, strokeWidth = 8 }) {
     const radius = (size - strokeWidth) / 2;
     const circumference = radius * 2 * Math.PI;
     const offset = circumference - (score / 100) * circumference;
@@ -83,10 +221,10 @@ function CircularProgress({ score, size = 120, strokeWidth = 10 }) {
     const strokeColor = score >= 85 ? '#10B981' : score >= 70 ? '#F59E0B' : '#EF4444';
 
     return (
-        <div className="relative flex flex-col items-center justify-center" style={{ width: size, height: size }}>
+        <div className="relative flex flex-col items-center justify-center p-2" style={{ width: size, height: size }}>
             <svg width={size} height={size} className="transform -rotate-90">
                 <circle
-                    className="text-brand-border"
+                    className="text-brand-border/40"
                     strokeWidth={strokeWidth}
                     stroke="currentColor"
                     fill="transparent"
@@ -99,7 +237,7 @@ function CircularProgress({ score, size = 120, strokeWidth = 10 }) {
                     strokeDasharray={circumference}
                     initial={{ strokeDashoffset: circumference }}
                     animate={{ strokeDashoffset: offset }}
-                    transition={{ duration: 1.2, ease: "easeOut" }}
+                    transition={{ type: "spring", duration: 1.2, bounce: 0.2 }}
                     strokeLinecap="round"
                     stroke={strokeColor}
                     fill="transparent"
@@ -109,8 +247,8 @@ function CircularProgress({ score, size = 120, strokeWidth = 10 }) {
                 />
             </svg>
             <div className="absolute flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold text-brand-text">{score}</span>
-                <span className="text-[10px] text-brand-muted font-semibold uppercase">Score</span>
+                <span className="text-xl font-bold tracking-tight text-white font-mono">{score}</span>
+                <span className="text-[8px] text-brand-muted font-bold uppercase tracking-wider">Score</span>
             </div>
         </div>
     );
@@ -144,12 +282,12 @@ function CleaningTimeline() {
     }, []);
 
     return (
-        <div className="bg-brand-card/80 border border-brand-border/60 p-5 rounded-2xl space-y-4 my-3 max-w-sm">
-            <h4 className="text-sm font-semibold text-brand-text flex items-center space-x-2">
-                <div className="w-2.5 h-2.5 bg-brand-primary animate-ping rounded-full" />
-                <span>Modular Cleaning Pipeline Running</span>
+        <div className="bg-brand-card/25 border border-brand-border/50 p-4 rounded-xl space-y-3.5 my-3 max-w-sm">
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <div className="w-2 h-2 bg-brand-primary rounded-full animate-ping" />
+                <span>Running Pipeline...</span>
             </h4>
-            <div className="space-y-2.5">
+            <div className="space-y-2">
                 {steps.map((st, i) => {
                     const isDone = i < currentStepIdx;
                     const isActive = i === currentStepIdx;
@@ -157,13 +295,13 @@ function CleaningTimeline() {
                     return (
                         <div key={st.key} className="flex items-center space-x-3 text-xs">
                             {isDone ? (
-                                <div className="text-brand-accent">✓</div>
+                                <div className="text-brand-primary font-bold">✓</div>
                             ) : isActive ? (
-                                <div className="w-3.5 h-3.5 border-2 border-brand-primary border-t-transparent animate-spin rounded-full" />
+                                <div className="w-3 h-3 border-2 border-brand-primary border-t-transparent animate-spin rounded-full" />
                             ) : (
-                                <div className="w-2 h-2 bg-brand-muted/40 rounded-full ml-1" />
+                                <div className="w-1.5 h-1.5 bg-brand-border rounded-full ml-1" />
                             )}
-                            <span className={isActive ? 'text-brand-primary font-medium' : isDone ? 'text-brand-muted/80' : 'text-brand-muted'}>
+                            <span className={isActive ? 'text-brand-primary font-semibold' : isDone ? 'text-brand-muted' : 'text-brand-muted/50'}>
                                 {st.text}
                             </span>
                         </div>
@@ -187,6 +325,7 @@ export default function ChatInterface({
     const [inputValue, setInputValue] = useState('');
     const [copiedId, setCopiedId] = useState(null);
     const messagesEndRef = useRef(null);
+    const textareaRef = useRef(null);
 
     const handleCopy = (text, msgId) => {
         if (!text) return;
@@ -215,28 +354,48 @@ export default function ChatInterface({
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    // Auto-scroll on new message
     useEffect(() => {
         scrollToBottom();
     }, [messages, isProcessing]);
 
+    // Handle shift-enter and input growth
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = '40px';
+            const scrollHeight = textareaRef.current.scrollHeight;
+            if (scrollHeight > 40) {
+                textareaRef.current.style.height = Math.min(scrollHeight, 180) + 'px';
+            }
+        }
+    }, [inputValue]);
+
     const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!inputValue.trim() || isProcessing) return;
-        onSendMessage(inputValue.trim());
+        if (e) e.preventDefault();
+        const trimmed = inputValue.trim();
+        if (!trimmed || isProcessing) return;
+        onSendMessage(trimmed);
         setInputValue('');
+        if (textareaRef.current) {
+            textareaRef.current.style.height = '40px';
+        }
     };
 
-    // Quick action chips
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSubmit();
+        }
+    };
+
+    // Quick Action Suggestions Chips
     const actionChips = [
-        { label: 'Clean Dataset', prompt: 'Clean Dataset' },
-        { label: 'Quality Report', prompt: 'Quality Report' },
+        { label: 'Inspect Quality', prompt: 'Quality Report' },
+        { label: 'Full Auto-Clean', prompt: 'Clean Dataset' },
+        { label: 'Check Duplicates', prompt: 'Count Duplicates' },
         { label: 'Missing Values', prompt: 'Analyze Missing Values' },
-        { label: 'Duplicates', prompt: 'Count Duplicates' },
-        { label: 'Outliers', prompt: 'Show Outliers' },
-        { label: 'Invalid Data Types', prompt: 'Find Invalid Data Types' },
-        { label: 'Normalize Text', prompt: 'Normalize Text' },
-        { label: 'Download Dataset', prompt: 'Download Dataset' },
-        { label: 'Generate Cleaning Report', prompt: 'Generate Cleaning Report' }
+        { label: 'Outlier Analysis', prompt: 'Show Outliers' },
+        { label: 'Data Type Tweaks', prompt: 'Find Invalid Data Types' }
     ];
 
     const handleChipClick = (prompt) => {
@@ -252,7 +411,6 @@ export default function ChatInterface({
     };
 
     const triggerApplyClean = () => {
-        // Assemble clean operations configuration payload
         const ops = {};
         if (cleanConfig.duplicate_cleaner) ops.duplicate_cleaner = { keep: 'first' };
         if (cleanConfig.text_cleaner) ops.text_cleaner = { trim_spaces: true, case: 'none', remove_extra_spaces: true };
@@ -268,430 +426,461 @@ export default function ChatInterface({
     };
 
     return (
-        <div className="flex-1 flex flex-col h-full bg-[#090a0f] relative overflow-hidden">
-            {/* Top info summary */}
-            <div className="px-5 py-2.5 border-b border-brand-border/60 bg-brand-sidebar/70 flex items-center justify-between z-10">
-                <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 rounded-full bg-brand-accent animate-pulse" />
-                    <span className="text-xs font-semibold text-brand-text truncate max-w-[200px]">
-                        {activeDatasetName || 'Active Dataset'}
-                    </span>
+        <div className="flex-1 flex flex-col h-full bg-[#0a0c14] relative overflow-hidden font-sans">
+            {/* Top Workspace Header Bar */}
+            <div className="px-6 py-3.5 border-b border-brand-border/40 bg-[#0d101a]/85 backdrop-blur-md flex items-center justify-between z-10">
+                <div className="flex items-center space-x-3">
+                    <div className="p-1.5 rounded-lg bg-brand-primary/10 border border-brand-primary/20 text-brand-primary">
+                        <Sparkle size={16} />
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-[10px] text-brand-muted uppercase font-bold tracking-wider">Workspace Copilot</span>
+                        <span className="text-xs font-semibold text-white truncate max-w-[220px]">
+                            {activeDatasetName || 'Interactive Terminal'}
+                        </span>
+                    </div>
                 </div>
-                <button
-                    onClick={onClearHistory}
-                    disabled={messages.length === 0}
-                    className="text-[10px] text-red-400 hover:text-red-300 disabled:text-brand-muted hover:bg-red-500/5 disabled:bg-transparent px-2.5 py-1.5 rounded-lg border border-red-500/15 disabled:border-transparent transition-all duration-200 focus:outline-none font-bold uppercase tracking-wider cursor-pointer"
-                >
-                    Clear Chat
-                </button>
+
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={onClearHistory}
+                        disabled={messages.length === 0}
+                        className="text-[10px] text-brand-muted hover:text-red-400 disabled:opacity-30 hover:bg-red-500/5 px-2.5 py-1.5 rounded-lg border border-brand-border/40 hover:border-red-500/20 transition-all font-semibold cursor-pointer active:scale-95 flex items-center gap-1.5"
+                    >
+                        <Trash size={12} />
+                        <span>Clear chat</span>
+                    </button>
+                </div>
             </div>
 
-            {/* Messages Pane */}
-            <div className="flex-1 overflow-y-auto px-4 md:px-6 py-5 space-y-5 custom-scrollbar">
-                {messages.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center p-6 mt-10">
-                        <div className="w-12 h-12 rounded-lg bg-brand-card border border-brand-border flex items-center justify-center mb-3 text-brand-primary shadow-lg">
-                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                            </svg>
+            {/* Chat Conversation Scroll Area */}
+            <div className="flex-1 overflow-y-auto px-4 md:px-0 py-6 space-y-6 custom-scrollbar">
+                <div className="max-w-3xl mx-auto space-y-6">
+                    {messages.length === 0 ? (
+                        <div className="h-full flex flex-col items-center justify-center text-center p-8 mt-12 bg-[#0d101a]/40 border border-brand-border/40 rounded-2xl">
+                            <div className="w-12 h-12 rounded-xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center mb-4 text-brand-primary shadow-lg shadow-brand-primary/5">
+                                <Brain size={24} />
+                            </div>
+                            <h2 className="text-base font-bold text-white tracking-wide">Welcome to Antigravity Copilot</h2>
+                            <p className="text-xs text-brand-muted max-w-md mt-2 leading-relaxed">
+                                Meet your intelligent data integrity assistant. Clean missing values, scan data quality anomalies, generate BI reports, or edit columns in real-time.
+                            </p>
                         </div>
-                        <h2 className="text-sm font-bold text-white uppercase tracking-wider">AI Data Integrity Analyst</h2>
-                        <p className="text-xs text-brand-muted max-w-sm mt-1.5 font-medium leading-relaxed">
-                            Review quality checks, configure automated operations, edit data cells using natural language pipelines, or build BI summary reports.
-                        </p>
-                    </div>
-                ) : (
-                    messages.map((msg, idx) => {
-                        const isUser = msg.role === 'user';
-                        return (
-                            <div
-                                key={msg.id || Math.random().toString()}
-                                className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}
-                            >
-                                <div className={`w-full max-w-[90%] md:max-w-[78%] rounded-lg p-3.5 border transition-all ${isUser
-                                    ? 'bg-[#181d2c] border-brand-primary/20 text-white rounded-br-none ml-auto'
-                                    : 'bg-brand-card/15 border-brand-border/60 text-slate-150 rounded-bl-none mr-auto'
-                                    }`}>
-                                    <div className="text-[9px] text-[#8c91a0] mb-1 font-bold uppercase tracking-wider">
-                                        {isUser ? 'You' : 'AI Analyst'}
+                    ) : (
+                        messages.map((msg, idx) => {
+                            const isUser = msg.role === 'user';
+                            return (
+                                <div
+                                    key={msg.id || idx}
+                                    className={`flex items-start gap-4 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
+                                >
+                                    {/* Avatar Column */}
+                                    <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border shadow-sm ${isUser
+                                            ? 'bg-brand-primary/15 border-brand-primary/30 text-brand-primary'
+                                            : 'bg-[#181c2e] border-brand-border/70 text-brand-accent'
+                                        }`}>
+                                        {isUser ? (
+                                            <User size={15} />
+                                        ) : (
+                                            <Brain size={15} className="animate-pulse" />
+                                        )}
                                     </div>
 
-                                    {/* Text content formatting */}
-                                    {msg.content && <MessageFormatter text={msg.content} />}
-
-                                    {/* Render inline Chart */}
-                                    {msg.type === 'chart' && msg.chart_data && (
-                                        <PlotlyChart chartData={msg.chart_data} />
-                                    )}
-
-                                    {/* PHASE 3 CUSTOM BUBBLES */}
-
-                                    {/* 1. Quality report score visualization */}
-                                    {msg.type === 'quality_report' && msg.data && (
-                                        <div className="mt-4 p-4 rounded-xl bg-brand-bg/50 border border-brand-border/40 space-y-4">
-                                            <div className="flex flex-col md:flex-row items-center md:items-start justify-around space-y-4 md:space-y-0">
-                                                {/* Circular scorecard */}
-                                                <CircularProgress score={msg.data.quality_score} />
-
-                                                {/* Breakdowns */}
-                                                <div className="w-full md:w-[60%] space-y-2">
-                                                    <span className="text-xs font-semibold text-brand-primary uppercase">Breakdowns</span>
-                                                    {Object.entries(msg.data.breakdown || {}).map(([key, val]) => (
-                                                        <div key={key} className="space-y-1">
-                                                            <div className="flex justify-between text-xs font-mono">
-                                                                <span className="capitalize">{key}</span>
-                                                                <span>{val}%</span>
-                                                            </div>
-                                                            <div className="w-full h-1.5 bg-brand-border rounded-full overflow-hidden">
-                                                                <div className="h-full bg-brand-accent" style={{ width: `${val}%` }} />
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            {/* Defect items detail list */}
-                                            {msg.data.issues && msg.data.issues.length > 0 && (
-                                                <div className="mt-4 border-t border-brand-border/30 pt-3 space-y-2">
-                                                    <span className="text-xs font-semibold text-amber-500 uppercase tracking-wider block">Detected Defects</span>
-                                                    <div className="max-h-[200px] overflow-y-auto space-y-2 pr-1">
-                                                        {msg.data.issues.map((iss, index) => (
-                                                            <div key={index} className="p-2.5 rounded-lg bg-brand-sidebar/40 border-l-2 border-red-500 flex justify-between space-x-2 text-xs">
-                                                                <div className="space-y-0.5">
-                                                                    <div className="font-semibold text-slate-200">
-                                                                        {iss.column ? `Column ${iss.column}` : 'Global Quality'}
-                                                                    </div>
-                                                                    <div className="text-slate-350">{iss.description}</div>
-                                                                    <div className="text-[10px] text-brand-accent mt-1">
-                                                                        💡 Rec: {iss.recommendation}
-                                                                    </div>
-                                                                </div>
-                                                                <div className={`shrink-0 uppercase text-[9px] font-bold px-1.5 py-0.5 rounded-md h-fit ${iss.findings_severity === 'high' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                                                                    {iss.findings_severity}
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            )}
+                                    {/* Content Column */}
+                                    <div className="flex-1 space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-[10px] text-brand-muted font-bold uppercase tracking-wider">
+                                                {isUser ? 'You' : 'Antigravity'}
+                                            </span>
                                         </div>
-                                    )}
 
-                                    {/* 2. Cleaning Recommendations Configurator Checklist */}
-                                    {msg.type === 'clean_recommend' && (
-                                        <div className="mt-4 p-4 rounded-xl bg-brand-bg/50 border border-brand-border/40 space-y-4">
-                                            <div className="text-xs font-semibold text-brand-primary uppercase tracking-wider">
-                                                Configure Selective Data Cleaning
-                                            </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                                <label className="flex items-center space-x-2.5 p-2 bg-brand-card rounded-lg cursor-pointer border border-brand-border/40 hover:border-brand-primary/40">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={cleanConfig.duplicate_cleaner}
-                                                        onChange={() => handleToggleConfig('duplicate_cleaner')}
-                                                        className="rounded text-brand-primary focus:ring-brand-primary bg-brand-bg border-brand-border"
-                                                    />
-                                                    <div>
-                                                        <div className="font-semibold">Remove Duplicates</div>
-                                                        <div className="text-[10px] text-brand-muted">Drop duplicate rows</div>
-                                                    </div>
-                                                </label>
+                                        <div className={`p-4 rounded-xl text-slate-100 text-sm leading-relaxed border shadow-sm ${isUser
+                                                ? 'bg-[#121626]/75 border-brand-border/80 text-right md:-ml-12'
+                                                : 'bg-[#0d101a]/60 border-brand-border/30 md:-mr-12'
+                                            }`}>
+                                            {/* Text formatted */}
+                                            {msg.content && <MessageFormatter text={msg.content} />}
 
-                                                <label className="flex items-center space-x-2.5 p-2 bg-brand-card rounded-lg cursor-pointer border border-brand-border/40 hover:border-brand-primary/40">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={cleanConfig.text_cleaner}
-                                                        onChange={() => handleToggleConfig('text_cleaner')}
-                                                        className="rounded text-brand-primary focus:ring-brand-primary bg-brand-bg border-brand-border"
-                                                    />
-                                                    <div>
-                                                        <div className="font-semibold">Normalize Text</div>
-                                                        <div className="text-[10px] text-brand-muted">Trim spaces & extra margins</div>
-                                                    </div>
-                                                </label>
+                                            {/* Plotly inline charts */}
+                                            {msg.type === 'chart' && msg.chart_data && (
+                                                <PlotlyChart chartData={msg.chart_data} />
+                                            )}
 
-                                                <label className="flex items-center space-x-2.5 p-2 bg-brand-card rounded-lg cursor-pointer border border-brand-border/40 hover:border-brand-primary/40">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={cleanConfig.validator}
-                                                        onChange={() => handleToggleConfig('validator')}
-                                                        className="rounded text-brand-primary focus:ring-brand-primary bg-brand-bg border-brand-border"
-                                                    />
-                                                    <div>
-                                                        <div className="font-semibold">Email/Phone Formats</div>
-                                                        <div className="text-[10px] text-brand-muted">Nullify invalid address tokens</div>
-                                                    </div>
-                                                </label>
-
-                                                <label className="flex items-center space-x-2.5 p-2 bg-brand-card rounded-lg cursor-pointer border border-brand-border/40 hover:border-brand-primary/40">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={cleanConfig.datetime_cleaner}
-                                                        onChange={() => handleToggleConfig('datetime_cleaner')}
-                                                        className="rounded text-brand-primary focus:ring-brand-primary bg-brand-bg border-brand-border"
-                                                    />
-                                                    <div>
-                                                        <div className="font-semibold">Standardize Dates</div>
-                                                        <div className="text-[10px] text-brand-muted">Parses mixed date forms</div>
-                                                    </div>
-                                                </label>
-
-                                                <label className="flex items-center space-x-2.5 p-2 bg-brand-card rounded-lg cursor-pointer border border-brand-border/40 hover:border-brand-primary/40">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={cleanConfig.outlier_cleaner}
-                                                        onChange={() => handleToggleConfig('outlier_cleaner')}
-                                                        className="rounded text-brand-primary focus:ring-brand-primary bg-brand-bg border-brand-border"
-                                                    />
-                                                    <div>
-                                                        <div className="font-semibold">IQR Outlier Handling</div>
-                                                        <div className="text-[10px] text-brand-muted">Clamp outlier cells caps</div>
-                                                    </div>
-                                                </label>
-
-                                                <label className="flex items-center space-x-2.5 p-2 bg-brand-card rounded-lg cursor-pointer border border-brand-border/40 hover:border-brand-primary/40">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={cleanConfig.datatype_cleaner}
-                                                        onChange={() => handleToggleConfig('datatype_cleaner')}
-                                                        className="rounded text-brand-primary focus:ring-brand-primary bg-brand-bg border-brand-border"
-                                                    />
-                                                    <div>
-                                                        <div className="font-semibold">Type Optimization</div>
-                                                        <div className="text-[10px] text-brand-muted">Downcast types + compact RAM</div>
-                                                    </div>
-                                                </label>
-
-                                                <div className="col-span-1 md:col-span-2 p-2 bg-brand-card rounded-lg border border-brand-border/40 space-y-1">
-                                                    <label className="flex items-center space-x-2.5 cursor-pointer">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={cleanConfig.missing_value_cleaner}
-                                                            onChange={() => handleToggleConfig('missing_value_cleaner')}
-                                                            className="rounded text-brand-primary focus:ring-brand-primary bg-brand-bg border-brand-border"
-                                                        />
-                                                        <div>
-                                                            <div className="font-semibold">Impute Missing Values</div>
-                                                            <div className="text-[10px] text-brand-muted font-normal">Fills missing fields cleanly</div>
-                                                        </div>
-                                                    </label>
-                                                    {cleanConfig.missing_value_cleaner && (
-                                                        <div className="pl-6 mt-1 flex items-center space-x-4">
-                                                            <span className="text-[10px] text-brand-muted font-medium">Strategy:</span>
-                                                            {['median', 'mean', 'mode', 'ffill'].map((str) => (
-                                                                <label key={str} className="flex items-center space-x-1 cursor-pointer text-[10px]">
-                                                                    <input
-                                                                        type="radio"
-                                                                        name="missingStrategy"
-                                                                        value={str}
-                                                                        checked={missingStrategy === str}
-                                                                        onChange={(e) => setMissingStrategy(e.target.value)}
-                                                                        className="text-brand-primary focus:ring-brand-primary bg-brand-bg md:w-3.5 md:h-3.5"
-                                                                    />
-                                                                    <span className="capitalize">{str}</span>
-                                                                </label>
+                                            {/* Dynamic Quality Score breakdown report card */}
+                                            {msg.type === 'quality_report' && msg.data && (
+                                                <div className="mt-4 p-4 rounded-xl bg-brand-bg/40 border border-brand-border/60 space-y-4">
+                                                    <div className="flex flex-col md:flex-row items-center justify-around gap-4">
+                                                        <CircularProgress score={msg.data.quality_score} />
+                                                        <div className="flex-1 w-full space-y-2.5">
+                                                            <span className="text-[10px] font-bold text-brand-primary uppercase tracking-widest block">Quality Metric Breakdown</span>
+                                                            {Object.entries(msg.data.breakdown || {}).map(([key, val]) => (
+                                                                <div key={key} className="space-y-1">
+                                                                    <div className="flex justify-between text-xs font-semibold">
+                                                                        <span className="capitalize font-mono text-brand-muted">{key}</span>
+                                                                        <span className="text-white font-mono">{val}%</span>
+                                                                    </div>
+                                                                    <div className="w-full h-1 bg-[#151928] rounded-full overflow-hidden">
+                                                                        <div className="h-full bg-brand-accent rounded-full" style={{ width: `${val}%` }} />
+                                                                    </div>
+                                                                </div>
                                                             ))}
+                                                        </div>
+                                                    </div>
+
+                                                    {msg.data.issues && msg.data.issues.length > 0 && (
+                                                        <div className="border-t border-brand-border/30 pt-3 space-y-2">
+                                                            <span className="text-[10px] font-bold text-amber-500 uppercase tracking-wider block">Detected Defects</span>
+                                                            <div className="max-h-[220px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                                                                {msg.data.issues.map((iss, i) => (
+                                                                    <div key={i} className="p-3 rounded-lg bg-brand-bg/50 border border-brand-border/40 border-l-2 border-l-red-500 flex justify-between gap-3 text-xs">
+                                                                        <div className="space-y-1">
+                                                                            <span className="font-semibold text-slate-200 block">
+                                                                                {iss.column ? `Column: ${iss.column}` : 'Workspace'}
+                                                                            </span>
+                                                                            <span className="text-slate-400 block leading-normal">{iss.description}</span>
+                                                                            <span className="text-[10px] text-brand-accent font-medium mt-1 inline-block bg-brand-accent/5 px-2 py-0.5 rounded border border-brand-accent/20">
+                                                                                💡 Suggestion: {iss.recommendation}
+                                                                            </span>
+                                                                        </div>
+                                                                        <span className={`shrink-0 uppercase text-[8px] font-bold px-2 py-0.5 rounded h-fit ${iss.findings_severity === 'high' ? 'bg-red-500/10 text-red-400 border border-red-500/25' : 'bg-amber-500/10 text-amber-400 border border-amber-500/25'
+                                                                            }`}>
+                                                                            {iss.findings_severity}
+                                                                        </span>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>
-                                            </div>
+                                            )}
 
-                                            <button
-                                                onClick={triggerApplyClean}
-                                                className="w-full bg-brand-accent hover:bg-emerald-600 text-white text-xs font-semibold py-2 px-4 rounded-xl transition duration-200 mt-2 flex items-center justify-center space-x-2 shadow-md focus:outline-none"
-                                            >
-                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                </svg>
-                                                <span>Apply Customized Pipeline</span>
-                                            </button>
-                                        </div>
-                                    )}
-
-                                    {/* 3. Steps timeline progress loading elements */}
-                                    {msg.type === 'cleaning_timeline' && (
-                                        <CleaningTimeline />
-                                    )}
-
-                                    {/* 4. Comparison dashboard and downloads center */}
-                                    {msg.type === 'cleaning_results' && msg.data && (
-                                        <div className="mt-4 p-4 rounded-xl bg-brand-bg/50 border border-brand-border/40 space-y-4">
-                                            <div className="text-xs font-semibold text-brand-accent uppercase tracking-wider block">
-                                                Pipeline Completed — Quality Metrics Summary
-                                            </div>
-
-                                            {/* Score change card */}
-                                            <div className="flex items-center justify-around bg-brand-card p-3 rounded-xl border border-brand-border/40">
-                                                <div className="text-center font-mono">
-                                                    <div className="text-xs text-brand-muted">Score Before</div>
-                                                    <div className="text-lg font-bold text-red-400">{msg.data.quality_score_before}</div>
-                                                </div>
-                                                <div className="text-lg text-brand-muted">➔</div>
-                                                <div className="text-center font-mono">
-                                                    <div className="text-xs text-brand-muted">Score After</div>
-                                                    <div className="text-lg font-bold text-brand-accent">{msg.data.quality_score_after}</div>
-                                                </div>
-                                            </div>
-
-                                            {/* Metrics Grid */}
-                                            <div className="grid grid-cols-2 gap-2.5">
-                                                {msg.data.comparison && msg.data.comparison.map((item, i) => {
-                                                    const isImpr = item.pct_impr !== null && item.pct_impr !== 0;
-                                                    const textClr = isImpr ? 'text-brand-accent' : 'text-slate-350';
-                                                    return (
-                                                        <div key={i} className="p-2.5 bg-brand-card rounded-lg border border-brand-border/30 text-xs flex justify-between items-center">
+                                            {/* Customized Selective Operations Checklist Configurator */}
+                                            {msg.type === 'clean_recommend' && (
+                                                <div className="mt-4 p-4 rounded-xl bg-brand-bg/40 border border-brand-border/60 space-y-4">
+                                                    <span className="text-[10px] font-bold text-brand-primary uppercase tracking-widest block">Configure Data Operations Pipeline</span>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                                        <label className="flex items-center space-x-3 p-3 bg-brand-sidebar hover:bg-brand-hover rounded-xl cursor-pointer border border-brand-border/40 hover:border-brand-primary/40 transition-colors">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={cleanConfig.duplicate_cleaner}
+                                                                onChange={() => handleToggleConfig('duplicate_cleaner')}
+                                                                className="rounded text-brand-primary focus:ring-brand-primary bg-brand-bg border-brand-border w-4 h-4 cursor-pointer"
+                                                            />
                                                             <div>
-                                                                <div className="font-semibold text-slate-300">{item.metric}</div>
-                                                                <div className="text-[10px] text-brand-muted mt-0.5">
-                                                                    Before: <span className="font-mono text-slate-400">{item.before}</span>
-                                                                </div>
-                                                                <div className="text-[10px] text-slate-200 mt-0.5">
-                                                                    After: <span className="font-mono">{item.after}</span>
-                                                                </div>
+                                                                <span className="font-semibold text-white block">Drop Duplicates</span>
+                                                                <span className="text-[10px] text-brand-muted">Drop duplicate row entries</span>
                                                             </div>
-                                                            {isImpr && (
-                                                                <span className="text-[10px] bg-brand-accent/10 px-1.5 py-0.5 rounded text-brand-accent font-semibold font-mono">
-                                                                    {item.pct_impr > 0 ? `+${item.pct_impr}` : item.pct_impr}%
-                                                                </span>
+                                                        </label>
+
+                                                        <label className="flex items-center space-x-3 p-3 bg-brand-sidebar hover:bg-brand-hover rounded-xl cursor-pointer border border-brand-border/40 hover:border-brand-primary/40 transition-colors">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={cleanConfig.text_cleaner}
+                                                                onChange={() => handleToggleConfig('text_cleaner')}
+                                                                className="rounded text-brand-primary focus:ring-brand-primary bg-brand-bg border-brand-border w-4 h-4 cursor-pointer"
+                                                            />
+                                                            <div>
+                                                                <span className="font-semibold text-white block">Text Normalization</span>
+                                                                <span className="text-[10px] text-brand-muted">Standardize text case & margins</span>
+                                                            </div>
+                                                        </label>
+
+                                                        <label className="flex items-center space-x-3 p-3 bg-brand-sidebar hover:bg-brand-hover rounded-xl cursor-pointer border border-brand-border/40 hover:border-brand-primary/40 transition-colors">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={cleanConfig.validator}
+                                                                onChange={() => handleToggleConfig('validator')}
+                                                                className="rounded text-brand-primary focus:ring-brand-primary bg-brand-bg border-brand-border w-4 h-4 cursor-pointer"
+                                                            />
+                                                            <div>
+                                                                <span className="font-semibold text-white block">Email/Phone Formats</span>
+                                                                <span className="text-[10px] text-brand-muted">Nullify invalid structural strings</span>
+                                                            </div>
+                                                        </label>
+
+                                                        <label className="flex items-center space-x-3 p-3 bg-brand-sidebar hover:bg-brand-hover rounded-xl cursor-pointer border border-brand-border/40 hover:border-brand-primary/40 transition-colors">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={cleanConfig.datetime_cleaner}
+                                                                onChange={() => handleToggleConfig('datetime_cleaner')}
+                                                                className="rounded text-brand-primary focus:ring-brand-primary bg-brand-bg border-brand-border w-4 h-4 cursor-pointer"
+                                                            />
+                                                            <div>
+                                                                <span className="font-semibold text-white block">Standardize Dates</span>
+                                                                <span className="text-[10px] text-brand-muted">Parse varied column formats</span>
+                                                            </div>
+                                                        </label>
+
+                                                        <label className="flex items-center space-x-3 p-3 bg-brand-sidebar hover:bg-brand-hover rounded-xl cursor-pointer border border-brand-border/40 hover:border-brand-primary/40 transition-colors">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={cleanConfig.outlier_cleaner}
+                                                                onChange={() => handleToggleConfig('outlier_cleaner')}
+                                                                className="rounded text-brand-primary focus:ring-brand-primary bg-brand-bg border-brand-border w-4 h-4 cursor-pointer"
+                                                            />
+                                                            <div>
+                                                                <span className="font-semibold text-white block">IQR Outlier Clamp</span>
+                                                                <span className="text-[10px] text-brand-muted">Cap feature values outlier bounds</span>
+                                                            </div>
+                                                        </label>
+
+                                                        <label className="flex items-center space-x-3 p-3 bg-brand-sidebar hover:bg-brand-hover rounded-xl cursor-pointer border border-brand-border/40 hover:border-brand-primary/40 transition-colors">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={cleanConfig.datatype_cleaner}
+                                                                onChange={() => handleToggleConfig('datatype_cleaner')}
+                                                                className="rounded text-brand-primary focus:ring-brand-primary bg-brand-bg border-brand-border w-4 h-4 cursor-pointer"
+                                                            />
+                                                            <div>
+                                                                <span className="font-semibold text-white block">Type Downcasting</span>
+                                                                <span className="text-[10px] text-brand-muted">Compress numeric floats & sizes</span>
+                                                            </div>
+                                                        </label>
+
+                                                        <div className="col-span-1 sm:col-span-2 p-3 bg-brand-sidebar rounded-xl border border-brand-border/40 space-y-2">
+                                                            <label className="flex items-center space-x-3 cursor-pointer">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={cleanConfig.missing_value_cleaner}
+                                                                    onChange={() => handleToggleConfig('missing_value_cleaner')}
+                                                                    className="rounded text-brand-primary focus:ring-brand-primary bg-brand-bg border-brand-border w-4 h-4 cursor-pointer"
+                                                                />
+                                                                <div>
+                                                                    <span className="font-semibold text-white">Impute Zero/Empty Fields</span>
+                                                                    <span className="text-[10px] text-brand-muted block">Calculate replacement entries</span>
+                                                                </div>
+                                                            </label>
+
+                                                            {cleanConfig.missing_value_cleaner && (
+                                                                <div className="pl-7 pt-1 flex items-center gap-3">
+                                                                    <span className="text-[10px] text-brand-muted font-bold font-mono">STRATEGY:</span>
+                                                                    {['median', 'mean', 'mode', 'ffill'].map((str) => (
+                                                                        <label key={str} className="flex items-center space-x-1.5 cursor-pointer text-[10px]">
+                                                                            <input
+                                                                                type="radio"
+                                                                                name="missingStrategy"
+                                                                                value={str}
+                                                                                checked={missingStrategy === str}
+                                                                                onChange={(e) => setMissingStrategy(e.target.value)}
+                                                                                className="text-brand-primary focus:ring-brand-primary bg-brand-bg w-3 h-3 cursor-pointer"
+                                                                            />
+                                                                            <span className="capitalize font-mono font-medium text-slate-350">{str}</span>
+                                                                        </label>
+                                                                    ))}
+                                                                </div>
                                                             )}
                                                         </div>
-                                                    );
-                                                })}
-                                            </div>
+                                                    </div>
 
-                                            {/* Download Center */}
-                                            <div className="border-t border-brand-border/30 pt-3 space-y-2">
-                                                <span className="text-xs font-semibold text-brand-primary uppercase tracking-wider block">Downloads Center</span>
-                                                <div className="grid grid-cols-2 gap-2">
-                                                    <a
-                                                        href={getDownloadUrl('csv', activeDatasetId)}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="p-2 text-center rounded-lg bg-brand-card hover:bg-brand-hover text-xs font-medium border border-brand-border border-b-2 hover:-translate-y-0.5 transition-all text-slate-200"
+                                                    <button
+                                                        onClick={triggerApplyClean}
+                                                        className="w-full bg-brand-accent hover:bg-emerald-600 active:scale-[0.98] transition-all text-brand-bg text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center space-x-2 shadow-md hover:shadow-emerald-500/10 cursor-pointer border border-brand-accent"
                                                     >
-                                                        📥 CSV Dataset
-                                                    </a>
-                                                    <a
-                                                        href={getDownloadUrl('excel', activeDatasetId)}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="p-2 text-center rounded-lg bg-brand-card hover:bg-brand-hover text-xs font-medium border border-brand-border border-b-2 hover:-translate-y-0.5 transition-all text-slate-200"
-                                                    >
-                                                        📥 Excel Workbook
-                                                    </a>
-                                                    <a
-                                                        href={getDownloadUrl('json', activeDatasetId)}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="p-2 text-center rounded-lg bg-brand-card hover:bg-brand-hover text-xs font-medium border border-brand-border border-b-2 hover:-translate-y-0.5 transition-all text-slate-200"
-                                                    >
-                                                        📥 JSON Array
-                                                    </a>
-                                                    <a
-                                                        href={getDownloadReportUrl(activeDatasetId)}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="p-2 text-center rounded-lg bg-brand-primary hover:bg-blue-600 text-xs font-semibold border-b-2 border-brand-theme hover:-translate-y-0.5 transition-all text-white col-span-2 flex items-center justify-center space-x-1"
-                                                    >
-                                                        <span>📄 Download Operations PDF Report</span>
-                                                    </a>
+                                                        <Sparkle size={14} weight="fill" />
+                                                        <span>Apply Operations Pipeline</span>
+                                                    </button>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    )}
+                                            )}
 
-                                    {/* Copy Button */}
-                                    {msg.content && (
-                                        <div className="flex justify-end mt-2.5 pt-2 border-t border-brand-border/20">
-                                            <button
-                                                onClick={() => handleCopy(msg.content, msg.id || idx)}
-                                                className={`flex items-center space-x-1.5 text-[10px] font-semibold py-1.5 px-2.5 rounded-lg border transition-all duration-200 focus:outline-none ${isUser
-                                                    ? 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10 border-white/10'
-                                                    : 'text-brand-muted hover:text-brand-primary bg-brand-bg/30 hover:bg-brand-bg/50 border-brand-border/40 hover:border-brand-primary/30'
-                                                    }`}
-                                                title="Copy to clipboard"
-                                            >
-                                                {copiedId === (msg.id || idx) ? (
-                                                    <>
-                                                        <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                                                        </svg>
-                                                        <span className="text-emerald-400">Copied!</span>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                                        </svg>
-                                                        <span>Copy</span>
-                                                    </>
-                                                )}
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        );
-                    })
-                )}
+                                            {/* Modular Step cleaning timelines */}
+                                            {msg.type === 'cleaning_timeline' && (
+                                                <CleaningTimeline />
+                                            )}
 
-                {isProcessing && (
-                    <div className="flex justify-start">
-                        <div className="bg-brand-card/15 border border-brand-border/60 rounded-lg rounded-bl-none p-3 max-w-[75%] shadow-md">
-                            <div className="text-[9px] text-[#8c91a0] mb-1 font-bold uppercase tracking-wider">
-                                AI Analyst
-                            </div>
-                            <div className="flex items-center space-x-2.5">
-                                <div className="relative w-4 h-4 flex items-center justify-center">
-                                    <div className="absolute inset-0 border-2 border-brand-primary/20 rounded-full" />
-                                    <div className="absolute inset-0 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
+                                            {/* Results overview stats comparisons & download panel */}
+                                            {msg.type === 'cleaning_results' && msg.data && (
+                                                <div className="mt-4 p-4 rounded-xl bg-brand-bg/40 border border-brand-border/60 space-y-4">
+                                                    <span className="text-[10px] font-bold text-brand-accent uppercase tracking-widest block">Operations Success — Dataset Cleaned</span>
+
+                                                    <div className="flex items-center justify-center gap-6 bg-[#0a0b10]/80 p-3 rounded-xl border border-brand-border/40 font-mono">
+                                                        <div className="text-center">
+                                                            <span className="text-[9px] text-brand-muted uppercase block">Before Code</span>
+                                                            <span className="text-base font-bold text-red-400">{msg.data.quality_score_before}</span>
+                                                        </div>
+                                                        <span className="text-brand-muted text-sm shrink-0">➔</span>
+                                                        <div className="text-center">
+                                                            <span className="text-[9px] text-brand-muted uppercase block">After Code</span>
+                                                            <span className="text-base font-bold text-brand-accent">{msg.data.quality_score_after}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Comparison Metrics Grid */}
+                                                    <div className="grid grid-cols-2 gap-2.5">
+                                                        {msg.data.comparison && msg.data.comparison.map((item, i) => {
+                                                            const isImpr = item.pct_impr !== null && item.pct_impr !== 0;
+                                                            return (
+                                                                <div key={i} className="p-3 bg-[#0f111c] rounded-xl border border-brand-border/40 text-xs flex justify-between items-center gap-2">
+                                                                    <div>
+                                                                        <span className="font-semibold text-slate-200 block truncate max-w-[110px]">{item.metric}</span>
+                                                                        <span className="text-[10px] text-brand-muted block mt-0.5 font-mono">
+                                                                            Before: <span className="text-slate-400">{item.before}</span>
+                                                                        </span>
+                                                                        <span className="text-[10px] text-slate-300 block mt-0.5 font-mono">
+                                                                            After: <span className="text-white font-bold">{item.after}</span>
+                                                                        </span>
+                                                                    </div>
+                                                                    {isImpr && (
+                                                                        <span className="text-[9px] bg-brand-accent/10 px-1.5 py-0.5 rounded text-brand-accent font-bold font-mono">
+                                                                            {item.pct_impr > 0 ? `+${item.pct_impr}` : item.pct_impr}%
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+
+                                                    {/* Operations PDF & File Downloads Center */}
+                                                    <div className="border-t border-brand-border/30 pt-3.5 space-y-2">
+                                                        <span className="text-[10px] font-bold text-brand-primary uppercase tracking-widest block">Export Workspace Formats</span>
+                                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                                            <a
+                                                                href={getDownloadUrl('csv', activeDatasetId)}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="py-2 text-center rounded-xl bg-brand-sidebar hover:bg-brand-hover text-xs font-semibold border border-brand-border/60 hover:-translate-y-0.5 transition-all text-slate-250 cursor-pointer flex items-center justify-center gap-1.5"
+                                                            >
+                                                                <DownloadSimple size={13} className="text-brand-muted" />
+                                                                <span>CSV</span>
+                                                            </a>
+                                                            <a
+                                                                href={getDownloadUrl('excel', activeDatasetId)}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="py-2 text-center rounded-xl bg-brand-sidebar hover:bg-brand-hover text-xs font-semibold border border-brand-border/60 hover:-translate-y-0.5 transition-all text-slate-250 cursor-pointer flex items-center justify-center gap-1.5"
+                                                            >
+                                                                <DownloadSimple size={13} className="text-brand-muted" />
+                                                                <span>Excel</span>
+                                                            </a>
+                                                            <a
+                                                                href={getDownloadUrl('json', activeDatasetId)}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="py-2 text-center rounded-xl bg-brand-sidebar hover:bg-brand-hover text-xs font-semibold border border-brand-border/60 hover:-translate-y-0.5 transition-all text-slate-250 cursor-pointer flex items-center justify-center gap-1.5"
+                                                            >
+                                                                <DownloadSimple size={13} className="text-brand-muted" />
+                                                                <span>JSON</span>
+                                                            </a>
+                                                            <a
+                                                                href={getDownloadReportUrl(activeDatasetId)}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="py-2.5 text-center rounded-xl bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary text-xs font-bold border border-brand-primary/30 hover:-translate-y-0.5 transition-all col-span-1 sm:col-span-3 flex items-center justify-center gap-2 cursor-pointer"
+                                                            >
+                                                                <FilePdf size={14} />
+                                                                <span>Download Cleaning Report (PDF)</span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Chat message manual copies */}
+                                            {msg.content && (
+                                                <div className="flex justify-end mt-2 pt-2 border-t border-brand-border/20">
+                                                    <button
+                                                        onClick={() => handleCopy(msg.content, msg.id || idx)}
+                                                        className={`flex items-center gap-1 py-1 px-2 rounded-lg border text-[10px] transition-all cursor-pointer ${isUser
+                                                                ? 'text-white/60 hover:text-white bg-white/5 border-white/10 hover:bg-white/10 active:scale-95'
+                                                                : 'text-brand-muted hover:text-brand-primary bg-brand-bg/30 border-brand-border/60 hover:border-brand-primary/30 hover:bg-brand-bg/50 active:scale-[0.95]'
+                                                            }`}
+                                                        title="Copy text content"
+                                                    >
+                                                        {copiedId === (msg.id || idx) ? (
+                                                            <>
+                                                                <Check size={11} className="text-emerald-400" />
+                                                                <span className="text-emerald-400 font-bold">Copied!</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Copy size={11} />
+                                                                <span className="font-semibold">Copy</span>
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                                <span className="text-xs font-mono text-brand-muted truncate">
-                                    {statusText || '🧠 Analyzing structures...'}
-                                </span>
+                            );
+                        })
+                    )}
+
+                    {/* Active dynamic typing/thinking status indicator bubble */}
+                    {isProcessing && (
+                        <div className="flex items-start gap-4">
+                            <div className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center border bg-[#181c2e] border-brand-border/70 text-brand-accent">
+                                <Brain size={15} className="animate-spin" />
+                            </div>
+                            <div className="flex-1 space-y-2">
+                                <div className="text-[10px] text-brand-muted font-bold uppercase tracking-wider">Antigravity</div>
+                                <div className="space-y-2.5">
+                                    <div className="flex items-center space-x-1.5 px-4 py-3 bg-[#0d101a]/40 border border-brand-border/40 rounded-xl rounded-tl-none w-fit">
+                                        <span className="w-1.5 h-1.5 bg-brand-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                        <span className="w-1.5 h-1.5 bg-brand-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                        <span className="w-1.5 h-1.5 bg-brand-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-[10px] font-mono text-brand-muted bg-[#0c0d15]/50 px-2.5 py-1 rounded w-fit border border-brand-border/20">
+                                        <ArrowCounterClockwise size={11} className="animate-spin text-brand-primary" />
+                                        <span>{statusText || 'Executing Pandas commands...'}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
-                <div ref={messagesEndRef} />
+                    )}
+                    <div ref={messagesEndRef} />
+                </div>
             </div>
 
-            {/* Input Bar Footer */}
-            <div className="p-3.5 border-t border-brand-border/60 bg-brand-sidebar/40">
-                <div className="max-w-4xl mx-auto space-y-2.5">
-                    {/* Horizontal chips container */}
-                    <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 scrollbar-none snap-x mask-fade">
-                        {actionChips.map((chip, idx) => (
-                            <button
-                                key={idx}
-                                onClick={() => handleChipClick(chip.prompt)}
-                                disabled={isProcessing}
-                                className="shrink-0 snap-start bg-brand-card/25 border border-brand-border/80 hover:border-brand-primary/55 hover:bg-brand-card/45 disabled:opacity-50 text-[11px] text-brand-text px-2.5 py-1 rounded-lg transition-all duration-150 focus:outline-none cursor-pointer font-medium"
-                            >
-                                {chip.label}
-                            </button>
-                        ))}
-                    </div>
+            {/* Chat Bottom Suggestion Chips & Form Input Footer Bar */}
+            <div className="border-t border-brand-border/40 bg-[#0d101a]/70 backdrop-blur-md px-4 py-4 z-10">
+                <div className="max-w-3xl mx-auto space-y-3">
 
-                    <form onSubmit={handleSubmit} className="flex items-center space-x-2.5">
-                        <input
-                            type="text"
-                            placeholder={isProcessing ? "Processing response..." : "Describe cleaning instructions or ask dataset queries..."}
+                    {/* suggestion quick action pills select chips */}
+                    {!isProcessing && (
+                        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none snap-x mask-fade">
+                            {actionChips.map((chip, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => handleChipClick(chip.prompt)}
+                                    disabled={isProcessing}
+                                    className="shrink-0 snap-start bg-brand-sidebar hover:bg-brand-hover hover:border-brand-primary/50 text-[10px] text-slate-200 border border-brand-border/60 hover:text-white px-3 py-1.5 rounded-lg transition-all duration-150 cursor-pointer font-bold uppercase tracking-wider active:scale-95"
+                                >
+                                    {chip.label}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Integrated Chat Box Area */}
+                    <div className="relative rounded-2xl bg-[#0f1220]/75 border border-brand-border focus-within:border-brand-primary/80 focus-within:ring-1 focus-within:ring-brand-primary/20 transition-all p-2 select-none">
+                        <textarea
+                            ref={textareaRef}
+                            rows={1}
+                            placeholder={isProcessing ? "Antigravity is working..." : "Message Antigravity..."}
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
+                            onKeyDown={handleKeyDown}
                             disabled={isProcessing}
-                            className="flex-1 bg-[#10121a]/60 border border-brand-border focus:border-brand-primary/80 rounded-lg px-3 py-2 text-xs text-brand-text placeholder-brand-muted outline-none focus:ring-1 focus:ring-brand-primary/30 disabled:opacity-50 transition-all duration-150 font-medium"
+                            className="w-full bg-transparent text-brand-text placeholder-brand-muted/75 text-xs outline-none resize-none px-3.5 pt-2 pb-1.5 max-h-44 custom-scrollbar font-medium leading-relaxed"
+                            style={{ height: '40px' }}
                         />
-                        <button
-                            type="submit"
-                            disabled={!inputValue.trim() || isProcessing}
-                            className="bg-brand-primary hover:bg-blue-600 disabled:bg-brand-muted/20 text-white p-2.5 rounded-lg transition-all duration-150 shrink-0 shadow-md focus:outline-none cursor-pointer active:scale-95"
-                        >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9-2-9-18-9 18 9-2zm0 0v-8" />
-                            </svg>
-                        </button>
-                    </form>
+
+                        {/* Send button inside text-box wrapper */}
+                        <div className="flex items-center justify-between px-3 pb-1 pt-1.5 border-t border-brand-border/10">
+                            <span className="text-[9px] text-brand-muted/60 font-semibold font-sans tracking-wide">
+                                Enter to send, Shift+Enter for new line
+                            </span>
+                            <button
+                                onClick={() => handleSubmit()}
+                                disabled={!inputValue.trim() || isProcessing}
+                                className="bg-brand-primary hover:bg-blue-600 disabled:bg-brand-muted/20 text-white p-2 rounded-xl transition-all duration-150 shrink-0 shadow-md cursor-pointer disabled:opacity-40 active:scale-95"
+                                title="Send Message"
+                            >
+                                <PaperPlaneRight size={13} weight="fill" />
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

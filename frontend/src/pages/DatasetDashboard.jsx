@@ -1221,9 +1221,11 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                                                             {predictionOutput.preview_data.data?.slice(0, 5).map((row, rIdx) => (
                                                                 <tr key={rIdx} className="hover:bg-brand-card/25">
                                                                     {predictionOutput.preview_data.columns?.slice(0, 5).map(c => (
-                                                                        <td key={c} className="p-3 font-medium text-white truncate max-w-[120px]">{String(row[c] || '')}</td>
+                                                                        <td key={c} className="p-3 font-medium text-white truncate max-w-[120px]">{String(row[c] ?? '')}</td>
                                                                     ))}
-                                                                    <td className="p-3 font-mono font-bold text-brand-accent bg-emerald-500/5">{String(row[`predicted_${targetCol}`] || '')}</td>
+                                                                    <td className="p-3 font-mono font-bold text-brand-accent bg-emerald-500/5">
+                                                                        {String(row[`predicted_${targetCol}`] ?? row[`Predicted_${targetCol}`] ?? '')}
+                                                                    </td>
                                                                 </tr>
                                                             ))}
                                                         </tbody>

@@ -269,21 +269,39 @@ class GeminiService(AIService):
         if self.__class__._selected_model is None:
             await self.__class__.initialize_service()
 
-        primary_model = self.__class__._selected_model or "gemini-2.5-flash-lite"
+        primary_model = self.__class__._selected_model or "gemini-3.7-flash"
         
         # Build fallback candidates list dynamically
-        candidates = [primary_model]
+        raw_candidates = [primary_model]
         
         # Add discovered active models (excluding primary)
         cached_list = self.__class__._cached_valid_models or []
         for m in cached_list:
-            if m not in candidates:
-                candidates.append(m)
+            if m not in raw_candidates:
+                raw_candidates.append(m)
 
         # Fallback defaults in case list is somehow empty
-        for backup in ["gemini-2.5-flash-lite", "gemini-2.5-flash"]:
-            if backup not in candidates:
-                candidates.append(backup)
+        for backup in ["gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"]:
+            if backup not in raw_candidates:
+                raw_candidates.append(backup)
+
+        # Filter candidate models to keep only general working text models (always keep primary model)
+        candidates = [primary_model]
+        for model in raw_candidates:
+            if model == primary_model:
+                continue
+            model_lower = model.lower()
+            # Exclude specialty suffixes (audio, image, robotics, computer-use, etc.)
+            if any(suffix in model_lower for suffix in ["-tts", "-image", "-clip", "robotics", "computer-use", "lyria", "banana"]):
+                continue
+            # Exclude deprecated / offline 404 models
+            if any(dep in model_lower for dep in ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite", "gemini-3.7-flash-latest", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0", "bison", "deprecated", "-001"]):
+                continue
+            candidates.append(model)
+
+        # Ensure we always have at least a baseline working backup
+        if not candidates:
+            candidates = ["gemini-3.7-flash", "gemini-3.6-flash"]
 
         last_error = None
         max_retries = 3
@@ -343,6 +361,8 @@ class GeminiService(AIService):
                         else:
                             last_error = RateLimitExceededError("Rate limited. Please slow down your requests.")
                             
+                        # Cap backoff delay to prevent long web request hangs
+                        retry_delay = min(retry_delay, 2.0)
                         print(f"[GeminiService] Model '{model}' rate limited (HTTP 429). Attempt {attempt + 1}/{max_retries}. Sleeping {retry_delay}s...")
                         await asyncio.sleep(retry_delay)
                         continue

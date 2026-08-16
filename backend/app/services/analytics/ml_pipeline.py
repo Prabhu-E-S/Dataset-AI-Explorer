@@ -25,7 +25,7 @@ class MLPipeline:
             raise ValueError(f"Target column '{target_column}' is completely empty.")
 
         # If data type is boolean, standard classification
-        if col_series.dtype == 'bool' or col_series.dtype == 'object':
+        if col_series.dtype == 'bool' or not pd.api.types.is_numeric_dtype(col_series):
             return "classification"
 
         # If integer or float with small cardinality, classify
@@ -59,7 +59,7 @@ class MLPipeline:
         # Process each feature column
         for col in feature_columns:
             col_series = X_df[col]
-            if col_series.dtype == 'object' or col_series.dtype == 'bool' or col_series.dtype.name == 'category':
+            if not pd.api.types.is_numeric_dtype(col_series) or col_series.dtype == 'bool' or col_series.dtype.name == 'category':
                 # Impute missing values with mode
                 imputer = SimpleImputer(strategy='most_frequent')
                 imputed = imputer.fit_transform(col_series.values.reshape(-1, 1)).ravel()
@@ -96,7 +96,7 @@ class MLPipeline:
         if target_column:
             y_series = df[target_column]
             # Impute missing targets
-            if y_series.dtype == 'object' or y_series.dtype == 'bool' or y_series.dtype.name == 'category':
+            if not pd.api.types.is_numeric_dtype(y_series) or y_series.dtype == 'bool' or y_series.dtype.name == 'category':
                 imputer = SimpleImputer(strategy='most_frequent')
                 imputed_y = imputer.fit_transform(y_series.values.reshape(-1, 1)).ravel()
                 le = LabelEncoder()

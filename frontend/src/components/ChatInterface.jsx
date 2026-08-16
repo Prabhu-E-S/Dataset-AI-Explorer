@@ -13,8 +13,10 @@ import {
     Sparkle,
     Terminal,
     Gear,
-    ArrowCounterClockwise
+    ArrowCounterClockwise,
+    Trash
 } from '@phosphor-icons/react';
+
 import { getDownloadUrl, getDownloadReportUrl } from '../services/api';
 
 // --- Inline Plotly Chart renderer ---
@@ -476,8 +478,8 @@ export default function ChatInterface({
                                 >
                                     {/* Avatar Column */}
                                     <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border shadow-sm ${isUser
-                                            ? 'bg-brand-primary/15 border-brand-primary/30 text-brand-primary'
-                                            : 'bg-[#181c2e] border-brand-border/70 text-brand-accent'
+                                        ? 'bg-brand-primary/15 border-brand-primary/30 text-brand-primary'
+                                        : 'bg-[#181c2e] border-brand-border/70 text-brand-accent'
                                         }`}>
                                         {isUser ? (
                                             <User size={15} />
@@ -495,8 +497,8 @@ export default function ChatInterface({
                                         </div>
 
                                         <div className={`p-4 rounded-xl text-slate-100 text-sm leading-relaxed border shadow-sm ${isUser
-                                                ? 'bg-[#121626]/75 border-brand-border/80 text-right md:-ml-12'
-                                                : 'bg-[#0d101a]/60 border-brand-border/30 md:-mr-12'
+                                            ? 'bg-[#121626]/75 border-brand-border/80 text-right md:-ml-12'
+                                            : 'bg-[#0d101a]/60 border-brand-border/30 md:-mr-12'
                                             }`}>
                                             {/* Text formatted */}
                                             {msg.content && <MessageFormatter text={msg.content} />}
@@ -780,8 +782,8 @@ export default function ChatInterface({
                                                     <button
                                                         onClick={() => handleCopy(msg.content, msg.id || idx)}
                                                         className={`flex items-center gap-1 py-1 px-2 rounded-lg border text-[10px] transition-all cursor-pointer ${isUser
-                                                                ? 'text-white/60 hover:text-white bg-white/5 border-white/10 hover:bg-white/10 active:scale-95'
-                                                                : 'text-brand-muted hover:text-brand-primary bg-brand-bg/30 border-brand-border/60 hover:border-brand-primary/30 hover:bg-brand-bg/50 active:scale-[0.95]'
+                                                            ? 'text-white/60 hover:text-white bg-white/5 border-white/10 hover:bg-white/10 active:scale-95'
+                                                            : 'text-brand-muted hover:text-brand-primary bg-brand-bg/30 border-brand-border/60 hover:border-brand-primary/30 hover:bg-brand-bg/50 active:scale-[0.95]'
                                                             }`}
                                                         title="Copy text content"
                                                     >

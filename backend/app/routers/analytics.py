@@ -377,6 +377,14 @@ async def execute_predictive_analytics(payload: dict, db: Session = Depends(get_
         db.add(prediction_record)
         db.commit()
 
+        # Build preview payload for frontend rendering matching dataset preview layout
+        import numpy as np
+        df_cleaned = df_pred.head(100).replace({np.nan: None})
+        preview_data = {
+            "columns": list(df_pred.columns),
+            "data": df_cleaned.to_dict(orient="records")
+        }
+
         log_activity("prediction_generated", f"Generated predictive values for '{target_col}' and cached as Version {ver_number}", db)
         trigger_notification("Predictions Generated", f"Applied predictions using {algorithm}.", "success", db)
 
@@ -384,7 +392,8 @@ async def execute_predictive_analytics(payload: dict, db: Session = Depends(get_
             "prediction_id": prediction_record.id,
             "metrics": res["metrics"],
             "features_used": res["features_used"],
-            "download_url": f"/api/datasets/download/csv/{dataset_id}" # Will download active version
+            "download_url": f"/api/datasets/download/csv/{dataset_id}", # Will download active version
+            "preview_data": preview_data
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Predictive analytics failed: {str(e)}")

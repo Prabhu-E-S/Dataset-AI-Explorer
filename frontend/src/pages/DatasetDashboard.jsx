@@ -88,7 +88,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
     const [settingsConfig, setSettingsConfig] = useState({
         darkMode: true,
         apiKey: localStorage.getItem('GEMINI_API_KEY') || '••••••••••••••••',
-        chartStyle: 'glassmorphism',
+        chartStyle: 'compact',
         language: 'en'
     });
 
@@ -149,7 +149,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
         if (activeTab === 'ai_analyst' && id) {
             const loadSessionData = async () => {
                 setIsChatProcessing(true);
-                setChatStatusText('🧠 Resolving active chat history...');
+                setChatStatusText('Loading chat history...');
                 try {
                     const history = await getChatHistory(id);
                     if (history && history.length > 0) {
@@ -160,7 +160,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                         }
                     } else {
                         // Generate welcome summary automatically
-                        setChatStatusText('🧠 Executing dataset profiling summary...');
+                        setChatStatusText('Generating dataset summary...');
                         const summaryData = await getDatasetSummary(id);
                         setChatMessages([{
                             id: Math.random().toString(),
@@ -338,7 +338,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
 
         try {
             if (textLower === 'quality report') {
-                setChatStatusText('🔍 Running dataset quality inspection scanner...');
+                setChatStatusText('Running dataset quality inspection...');
                 const res = await getQualityReport(id);
                 setChatMessages(prev => [...prev, {
                     id: Math.random().toString(),
@@ -349,7 +349,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                     timestamp: new Date().toISOString()
                 }]);
             } else if (textLower === 'clean dataset' || textLower === 'clean my dataset' || textLower === 'clean dataset') {
-                setChatStatusText('🤖 Querying Gemini for data cleaning strategies...');
+                setChatStatusText('Preparing data cleaning recommendations...');
                 const res = await cleanDatasetChat(id, text);
                 setChatMessages(prev => [...prev, {
                     id: Math.random().toString(),
@@ -359,10 +359,10 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                     timestamp: new Date().toISOString()
                 }]);
             } else {
-                setChatStatusText('🧠 Filtering query intent...');
+                setChatStatusText('Interpreting request...');
                 const stateTimers = [
-                    setTimeout(() => setChatStatusText('💾 Executing sandboxed Pandas calculations...'), 600),
-                    setTimeout(() => setChatStatusText('📊 Generating chart layout specification...'), 1200)
+                    setTimeout(() => setChatStatusText('Running dataset calculations...'), 600),
+                    setTimeout(() => setChatStatusText('Preparing chart output...'), 1200)
                 ];
 
                 const response = await sendChatMessage(id, text, chatSessionId);
@@ -400,7 +400,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
     const handleApplyCleaning = async (operations) => {
         if (isChatProcessing) return;
         setIsChatProcessing(true);
-        setChatStatusText('⚙️ Initializing Modular Cleaning Pipeline...');
+        setChatStatusText('Starting cleaning pipeline...');
 
         // Add user response bubble optimistically
         setChatMessages(prev => [...prev, {
@@ -468,14 +468,14 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
     const handleClearChatHistory = async () => {
         if (window.confirm('Delete all messages in this conversation session? This cannot be undone.')) {
             setIsChatProcessing(true);
-            setChatStatusText('🧹 Cleaning session details...');
+            setChatStatusText('Clearing chat session...');
             try {
                 await deleteChatHistory(id);
                 setChatMessages([]);
                 setChatSessionId(null);
 
                 // Re-trigger summary welcome message automatically
-                setChatStatusText('🧠 Re-profiling summary details...');
+                setChatStatusText('Refreshing dataset summary...');
                 const summaryData = await getDatasetSummary(id);
                 setChatMessages([{
                     id: Math.random().toString(),
@@ -1511,7 +1511,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                                 }}
                                 className="w-full p-3 rounded-xl border border-brand-border/40 hover:border-brand-primary bg-brand-bg/40 text-xs font-semibold text-white flex items-center justify-between cursor-pointer"
                             >
-                                <span>🧠 Run AutoML Recommend Scan</span>
+                                <span>Run AutoML recommendation</span>
                                 <span className="text-[9px] text-brand-muted">Estimator</span>
                             </button>
                             <button
@@ -1521,7 +1521,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                                 }}
                                 className="w-full p-3 rounded-xl border border-brand-border/40 hover:border-brand-primary bg-brand-bg/40 text-xs font-semibold text-white flex items-center justify-between cursor-pointer"
                             >
-                                <span>📊 Fit Predictive Model Pipeline</span>
+                                <span>Fit predictive model</span>
                                 <span className="text-[9px] text-brand-muted">Scikit-Learn</span>
                             </button>
                             <button
@@ -1531,7 +1531,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                                 }}
                                 className="w-full p-3 rounded-xl border border-brand-border/40 hover:border-brand-primary bg-brand-bg/40 text-xs font-semibold text-white flex items-center justify-between cursor-pointer"
                             >
-                                <span>📄 Compile Gemini BI Insights Report</span>
+                                <span>Compile BI insights report</span>
                                 <span className="text-[9px] text-brand-muted">Business PDF</span>
                             </button>
                             <button
@@ -1541,7 +1541,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                                 }}
                                 className="w-full p-3 rounded-xl border border-brand-border/40 hover:border-brand-primary bg-brand-bg/40 text-xs font-semibold text-white flex items-center justify-between cursor-pointer"
                             >
-                                <span>🔄 Restore Historical Version</span>
+                                <span>Restore historical version</span>
                                 <span className="text-[9px] text-brand-muted">Rollback</span>
                             </button>
                             <button
@@ -1552,7 +1552,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                                 }}
                                 className="w-full p-3 rounded-xl border border-brand-border/40 hover:border-brand-primary bg-brand-bg/40 text-xs font-semibold text-white flex items-center justify-between cursor-pointer"
                             >
-                                <span>🔍 Trigger Quality Audit Scan</span>
+                                <span>Run quality audit</span>
                                 <span className="text-[9px] text-brand-muted">Profiling</span>
                             </button>
                         </div>
@@ -1594,7 +1594,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
 
                             {/* Theme settings */}
                             <div className="flex items-center justify-between text-xs text-white">
-                                <span className="font-semibold">Dark themed glassmorphism</span>
+                                <span className="font-semibold">Dark workspace theme</span>
                                 <input
                                     type="checkbox"
                                     checked={settingsConfig.darkMode}
@@ -1611,7 +1611,7 @@ export default function DatasetDashboard({ onDatasetDeleted }) {
                                     onChange={(e) => setSettingsConfig(prev => ({ ...prev, chartStyle: e.target.value }))}
                                     className="bg-brand-bg border border-brand-border focus:border-brand-primary outline-none p-2.5 rounded-xl text-xs text-white"
                                 >
-                                    <option value="glassmorphism">Premium UI Glassmorphism</option>
+                                    <option value="glassmorphism">Legacy elevated panels</option>
                                     <option value="high-contrast">High Contrast Dark</option>
                                     <option value="compact">Compact Grid Minimal</option>
                                 </select>

@@ -1,0 +1,37 @@
+[
+  {
+    "model": "gemini-2.5-flash-lite",
+    "status_code": 404,
+    "error": "This model models/gemini-2.5-flash-lite is no longer available to new users. Please update your code to use a newer model for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/migrate-to-interactions).",
+    "error_status": "NOT_FOUND"
+  },
+  {
+    "model": "gemini-2.5-flash",
+    "status_code": 404,
+    "error": "This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use a newer model for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/migrate-to-interactions).",
+    "error_status": "NOT_FOUND"
+  },
+  {
+    "model": "gemini-3.7-flash",
+    "status_code": 200,
+    "reply": "Hello there!"
+  },
+  {
+    "model": "gemini-2.5-pro",
+    "status_code": 404,
+    "error": "This model models/gemini-2.5-pro is no longer available to new users. Please update your code to use a newer model for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/migrate-to-interactions).",
+    "error_status": "NOT_FOUND"
+  },
+  {
+    "model": "gemini-3.7-flash-latest",
+    "status_code": 404,
+    "error": "models/gemini-3.7-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.",
+    "error_status": "NOT_FOUND"
+  },
+  {
+    "model": "gemini-1.5-flash",
+    "status_code": 404,
+    "error": "models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.",
+    "error_status": "NOT_FOUND"
+  }
+]
